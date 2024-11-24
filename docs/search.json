@@ -1,0 +1,52 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ClassifyR PlayBook",
+    "section": "",
+    "text": "1 Overview",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Overview</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "ClassifyR PlayBook",
+    "section": "1.1 Welcome!",
+    "text": "1.1 Welcome!\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Overview</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#ummm",
+    "href": "index.html#ummm",
+    "title": "ClassifyR PlayBook",
+    "section": "1.2 ummm",
+    "text": "1.2 ummm\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Overview</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html",
+    "href": "Procedure1.html",
+    "title": "2  Precedure 1",
+    "section": "",
+    "text": "2.1 Intro\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Precedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#next-thing",
+    "href": "Procedure1.html#next-thing",
+    "title": "2  Precedure 1",
+    "section": "2.2 Next thing",
+    "text": "2.2 Next thing\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Precedure 1</span>"
+    ]
+  }
+]
