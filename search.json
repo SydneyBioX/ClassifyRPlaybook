@@ -1,0 +1,112 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ClassifyR PlayBook",
+    "section": "",
+    "text": "1 Overview",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Overview</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "ClassifyR PlayBook",
+    "section": "1.1 Welcome!",
+    "text": "1.1 Welcome!\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Overview</span>"
+    ]
+  },
+  {
+    "objectID": "index.html#ummm",
+    "href": "index.html#ummm",
+    "title": "ClassifyR PlayBook",
+    "section": "1.2 ummm",
+    "text": "1.2 ummm\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Overview</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html",
+    "href": "Procedure1.html",
+    "title": "2  Procedure 1",
+    "section": "",
+    "text": "2.1 Intro\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#next-thing",
+    "href": "Procedure1.html#next-thing",
+    "title": "2  Procedure 1",
+    "section": "2.2 Next thing",
+    "text": "2.2 Next thing\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure2.html",
+    "href": "Procedure2.html",
+    "title": "3  Procedure 2",
+    "section": "",
+    "text": "3.1 Intro\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Procedure 2</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure2.html#next-thing",
+    "href": "Procedure2.html#next-thing",
+    "title": "3  Procedure 2",
+    "section": "3.2 Next thing",
+    "text": "3.2 Next thing\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Procedure 2</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure3.html",
+    "href": "Procedure3.html",
+    "title": "4  Procedure 3",
+    "section": "",
+    "text": "4.1 Intro\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Procedure 3</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure3.html#next-thing",
+    "href": "Procedure3.html#next-thing",
+    "title": "4  Procedure 3",
+    "section": "4.2 Next thing",
+    "text": "4.2 Next thing\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Procedure 3</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure4.html",
+    "href": "Procedure4.html",
+    "title": "5  Procedure 4",
+    "section": "",
+    "text": "5.1 Intro\ntext",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Procedure 4</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure4.html#next-thing",
+    "href": "Procedure4.html#next-thing",
+    "title": "5  Procedure 4",
+    "section": "5.2 Next thing",
+    "text": "5.2 Next thing\nmore text",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Procedure 4</span>"
+    ]
+  }
+]
