@@ -26,7 +26,7 @@ bibliography: references.bib
 
 format:
   html:
-    theme: cosmo [cosmo, styles.scss]
+    theme: [cosmo, styles.scss]
     css: styles.css
 
 
