@@ -89,7 +89,7 @@ results_both <- lapply(results_both, function(results) {
   calcCVperformance(results, performanceType = "Balanced Accuracy")
 })
 
-performancePlot(results_both, characteristicsList = list(x = "auto", fillColour = "characteristicsLabel")) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+performancePlot(results_both, characteristicsList = list(x = "auto", fillColour = "characteristicsLabel")) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) #performancePlot is essentially ggplot, so just add one more things
 ```
 
 ## Overall Pseudobulked Data
