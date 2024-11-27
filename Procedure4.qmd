@@ -1,9 +1,17 @@
 # Procedure 4
 
+The transferability of biomarkers from one patient population to another is often difficult to fully capture. Here we present three options for first assessing and then building transferable models from gene expression data.
+
 ## Intro
 
-text
+### Criss-cross validate
+
+Let's suppose you want to assess how biomarkers selected from one population relate to another. In typical fashion you may build a model on one dataset through some cross-validation strategy and then attempt to predict the outcome of the paitent population in teh other cohort. This is of course rather procedural. Hence, criss-cross validate. A technique that performs a cross validation model building procedure on one dataset or group of patients and then applies this model to the other datasets you have collected. This procedure is repeated for n datasets.
+
+We will use the recently published PROMAD database as a quick and easy way to collect 
 
 ## Next thing
+
+
 
 more text
