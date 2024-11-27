@@ -19,39 +19,27 @@ library(ggplot2)
 library(reshape2)
 ```
 
-## Simplified
+## Final Procedure using SCM Classifier with 5% of features selected from t-test
 ```{r}
 set.seed(1)
 clinical = read.xlsx("clinical.xlsx")
 clusters <- readRDS("cluster_result_ER_and_PR_onlyER+PR+.rds")
-p <- readRDS("pseudobulk_overall_sum.rds") %>% filter(rownames(p) %in% clusters$sample_id)
-p_cell <- readRDS("pseudobulk_celltype_sum.rds") %>% filter(rownames(p_cell) %in% clusters$sample_id)
+p <- readRDS("pseudobulk_overall_sum.rds") 
+p <-p[rownames(p) %in% clusters$sample_id, ]
+p_cell <- readRDS("pseudobulk_celltype_sum.rds")
+p_cell <-p_cell[rownames(p_cell) %in% clusters$sample_id, ]
 outcome = clusters$cluster
 
-# Apply crossValidate function to each dataset
-classifyr_result <- lapply(data_list, function(data) {
-  crossValidate(
-    data,  
-    outcome = classes,  
-    selectionMethod = "auto", # could also use: differentMeans, limma, edgeR, bartlett, 
-    classifier = "auto",      # could also use: svm, kNN
-    nFeatures = 0.05 * nrow(data), # select top 5% featuers for auto selectionMethod
-    nFolds = 5,              # 5-fold cross-validation, balances the groups so number of each class is balanced in each fold. Caret doesn't do this
-    nRepeats = 5,            # 5 repeats
-    nCores = 5               # Parallel processing with 5 cores
-  )
+classifyr_result <- crossValidate(p, outcome = outcome, selectionMethod = "auto", classifier = "SVM", nFeatures = 0.05 * nrow(p), nFolds = 5, nRepeats = 5, nCores = 5, characteristicsLabel = "overall_pseudobulking")
+classifyr_result2 <- crossValidate(p_cell, outcome = outcome, selectionMethod = "auto", classifier = "SVM", nFeatures = 0.05 * nrow(p_cell), nFolds = 5, nRepeats = 5, nCores = 5, characteristicsLabel = "cell_specific_pseudobulking")
+results_both = append(classifyr_result, classifyr_result2)
+results_both <- lapply(results_both, function(results) {
+  calcCVperformance(results, performanceType = "Balanced Accuracy")
 })
-
-performancePlot(classifyr_result)
-classifyr_result <- lapply(classifyr_result, 
-                           function(data) calcCVperformance(data, performanceType = "AUC"))
-
-classifyr_result$p_cell@performance
-samplesMetricMap(classifyr_result$p)
-#selectionOptimisation is how to select features. (resubstitution means select from training data. Nested CV is splitting training data into training and testing)
-# set to proportion rather than fixed number
+performancePlot(results_both, characteristicsList = list(x = "auto", fillColour = "characteristicsLabel")) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) #performancePlot is essentially ggplot, so just add one more things
 ```
 
+# Classifier Selection Plot
 ```{r}
 # classifier must exactly match these options: randomForest, DLDA, kNN, GLM, ridgeGLM, elasticNetGLM, LASSOGLM, SVM, NSC, naiveBayes, mixturesNormals, CoxPH, CoxNet, randomSurvivalForest, XGB
 
@@ -74,7 +62,7 @@ classifyr_result2 <- crossValidate(
     p_cell,  
     outcome = outcome,  
     selectionMethod = "auto", 
-    classifier = c("SVM", "kNN", "randomForest", 
+    classifier =  c("SVM", "kNN", "randomForest", 
                "naiveBayes", "XGB"), # Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance
     nFeatures = 0.05 * nrow(p_cell), 
     nFolds = 5,              
@@ -92,6 +80,8 @@ results_both <- lapply(results_both, function(results) {
 performancePlot(results_both, characteristicsList = list(x = "auto", fillColour = "characteristicsLabel")) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) #performancePlot is essentially ggplot, so just add one more things
 ```
 
+
+## Everything below is verbose non-ClassifyR Code (Left in for comparison)
 ## Overall Pseudobulked Data
 
 ```{r}
@@ -294,50 +284,5 @@ cat("Precision per class:", precision, "\n")
 cat("F1 Score per class:", f1_score, "\n")
 ```
 
-## Plots
-```{r}
-# Function to generate ROC curve
-generate_roc <- function(predictions, outcome) {
-  actual <- as.numeric(as.factor(predictions$outcome))
-  # Use predicted probabilities
-  pred_prob <- predictions$X0
-  # Compute ROC
-  roc_obj <- roc(actual, pred_prob)
-  return(roc_obj)
-}
 
-predictions = as.data.frame(predictions)
-# Generate ROC curves for both methods
-roc_overall <- generate_roc(predictions, actual)
-roc_overall_forest <- generate_roc(predictions_forest, outcome)
-roc_cell <- generate_roc(predictions_cell, outcome)
-roc_cell_forest <- generate_roc(predictions_cell_forest, outcome)
-
-# Plot ROC curves
-roc_plot <- ggplot() +
-  geom_line(data = data.frame(fpr = 1 - roc_overall$specificities, tpr = roc_overall$sensitivities), aes(x = fpr, y = tpr), color = "blue", linetype = "solid", size = 1) +
-  geom_line(data = data.frame(fpr = 1 - roc_overall_forest$specificities, tpr = roc_overall_forest$sensitivities), aes(x = fpr, y = tpr), color = "red", linetype = "dashed", size = 1) +
-  geom_line(data = data.frame(fpr = 1 - roc_cell$specificities, tpr = roc_cell$sensitivities), aes(x = fpr, y = tpr), color = "green", linetype = "solid", size = 1) +
-  geom_line(data = data.frame(fpr = 1 - roc_cell_forest$specificities, tpr = roc_cell_forest$sensitivities), aes(x = fpr, y = tpr), color = "purple", linetype = "dashed", size = 1) +
-  labs(title = "ROC Curves", x = "False Positive Rate (1 - Specificity)", y = "True Positive Rate (Sensitivity)") +
-  theme_minimal() +
-  scale_color_manual(name = "Model", 
-                     values = c("blue", "red", "green", "purple"),
-                     labels = c("Overall (Cox)", "Overall (Random Forest)", "Cell-specific (Cox)", "Cell-specific (Random Forest)")) +
-  theme(legend.position = "bottom") +
-  coord_equal()
-
-print(roc_plot)
-
-# Add AUC values
-auc_overall <- auc(roc_overall)
-auc_overall_forest <- auc(roc_overall_forest)
-auc_cell <- auc(roc_cell)
-auc_cell_forest <- auc(roc_cell_forest)
-
-cat("AUC for overall (Cox):", auc_overall, "\n")
-cat("AUC for overall (Random Forest):", auc_overall_forest, "\n")
-cat("AUC for cell-specific (Cox):", auc_cell, "\n")
-cat("AUC for cell-specific (Random Forest):", auc_cell_forest, "\n")
-```
 
