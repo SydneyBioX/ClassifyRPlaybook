@@ -16,24 +16,9 @@ We will use the recently published PROMAD database as a quick and easy way to co
 library(ClassifyR)
 library(tidyverse)
 
-Blood_Counts <- lapply(df_list, function(y){
-  y %>%
-    dplyr::select(-X) %>%
-    tibble::remove_rownames() %>%
-    filter(!duplicated(Gene_Symbol) & !is.na(Gene_Symbol)) %>%
-    tibble::column_to_rownames("Gene_Symbol")
-})
-
-int <- Reduce(intersect, lapply(Blood_Counts, rownames))
-Blood_Counts <-  lapply(Blood_Counts, function(x)x[int,, drop = FALSE])
-Blood_outcome <- lapply(Blood_Counts, function(x){
-  factor(ifelse(grepl("Control", colnames(x)), "Control", "AR"))
-})
-
-data = list(measurements = Blood_Counts, outcome = Blood_outcome)
-data$measurements = lapply(data$measurements, t)
-
-crissCrossValidate(measurements = data$measurements, outcome = data$outcome)
+promad_data = read_rds("~/Downloads/PROMAD_sample.Rds")
+ccv = crissCrossValidate(measurements = promad_data$measurements, 
+                         outcome = promad_data$outcome)
 ```
 
 
