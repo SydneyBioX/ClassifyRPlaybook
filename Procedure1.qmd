@@ -20,13 +20,14 @@ library(reshape2)
 ```
 
 ## Final Procedure using SCM Classifier with 5% of features selected from t-test
+
 ```{r}
 set.seed(1)
-clinical = read.xlsx("clinical.xlsx")
-clusters <- readRDS("cluster_result_ER_and_PR_onlyER+PR+.rds")
-p <- readRDS("pseudobulk_overall_sum.rds") 
+clinical = read.xlsx("data/procedure1/clinical.xlsx")
+clusters <- readRDS("data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds")
+p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds") 
 p <-p[rownames(p) %in% clusters$sample_id, ]
-p_cell <- readRDS("pseudobulk_celltype_sum.rds")
+p_cell <- readRDS("data/procedure1/pseudobulk_celltype_sum.rds")
 p_cell <-p_cell[rownames(p_cell) %in% clusters$sample_id, ]
 outcome = clusters$cluster
 
@@ -40,6 +41,7 @@ performancePlot(results_both, characteristicsList = list(x = "auto", fillColour 
 ```
 
 # Classifier Selection Plot
+
 ```{r}
 # classifier must exactly match these options: randomForest, DLDA, kNN, GLM, ridgeGLM, elasticNetGLM, LASSOGLM, SVM, NSC, naiveBayes, mixturesNormals, CoxPH, CoxNet, randomSurvivalForest, XGB
 
@@ -80,15 +82,15 @@ results_both <- lapply(results_both, function(results) {
 performancePlot(results_both, characteristicsList = list(x = "auto", fillColour = "characteristicsLabel")) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) #performancePlot is essentially ggplot, so just add one more things
 ```
 
-
 ## Everything below is verbose non-ClassifyR Code (Left in for comparison)
+
 ## Overall Pseudobulked Data
 
 ```{r}
-clinical = read.xlsx("clinical.xlsx")
+clinical = read.xlsx("data/procedure1/clinical.xlsx")
 outcome = substring(clinical$OS_STATUS,1,1)
 
-p <- readRDS("pseudobulk_overall_sum.rds")
+p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds")
 p_filtered <- p[, colSums(p != 0) > 0, drop = FALSE]
 
 p_values <- sapply(colnames(p_filtered), function(feature) {
@@ -110,7 +112,7 @@ classifyr_result <- crossValidate(
   nRepeats = 5,     # 5 repeats
   nCores = 5        # Parallel processing with 5 cores
 )
-saveRDS(classifyr_result, file = "classifyr_result.rds")
+#saveRDS(classifyr_result, file = "classifyr_result.rds")
 
 classifyr_result_forest <- crossValidate(
   list(omics = omics_selected),  # Only use omics data
@@ -209,7 +211,7 @@ classifyr_result_cell <- crossValidate(
   nRepeats = 5,     # 5 repeats
   nCores = 5        # Parallel processing with 5 cores
 )
-saveRDS(classifyr_result_cell, file = "classifyr_result_cell.rds")
+#saveRDS(classifyr_result_cell, file = "classifyr_result_cell.rds")
 
 classifyr_result_cell_forest <- crossValidate(
   list(omics = omics_selected_cell),  # Only use omics data
@@ -283,6 +285,3 @@ cat("Specificity per class:", specificity, "\n")
 cat("Precision per class:", precision, "\n")
 cat("F1 Score per class:", f1_score, "\n")
 ```
-
-
-
