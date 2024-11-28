@@ -14,11 +14,10 @@ We will use the recently published PROMAD database as a quick and easy way to co
 
 ```{r}
 library(ClassifyR)
-library(tidyverse)
-
 promad_data = read_rds("~/Downloads/PROMAD_sample.Rds")
 ccv = crissCrossValidate(measurements = promad_data$measurements, 
                          outcome = promad_data$outcome)
+crissCrossPlot(ccv)
 ```
 
 
