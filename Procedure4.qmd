@@ -14,10 +14,19 @@ We will use the recently published PROMAD database as a quick and easy way to co
 
 ```{r}
 library(ClassifyR)
-promad_data = read_rds("~/Downloads/PROMAD_sample.Rds")
+promad_data = read_rds("PROMAD_sample.Rds")
 ccv = crissCrossValidate(measurements = promad_data$measurements, 
-                         outcome = promad_data$outcome)
+                         outcome = promad_data$outcome,
+                         classifier = "SVM")
 crissCrossPlot(ccv)
+
+library(TOP)
+Data_temp = lapply(promad_data$measurements, "[", , TOP::filterFeatures(x_list = promad_data$measurements, 
+                                                        y_list = promad_data$outcome, 
+                                                        contrast = "AR - Control", 
+                                                        nFeatures = 50))
+
+TOP::TOP_model(x_list = Data_temp, y_list = promad_data$outcome)
 ```
 
 
