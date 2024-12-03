@@ -195,7 +195,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#next-thing" id="toc-next-thing" class="nav-link" data-scroll-target="#next-thing"><span class="header-section-number">2.2</span> Next thing</a></li>
   <li><a href="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" id="toc-final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" class="nav-link" data-scroll-target="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test"><span class="header-section-number">2.3</span> Final Procedure using SCM Classifier with 5% of features selected from t-test</a></li>
   <li><a href="#classifier-selection-plot" id="toc-classifier-selection-plot" class="nav-link" data-scroll-target="#classifier-selection-plot"><span class="header-section-number">3</span> Classifier Selection Plot</a></li>
-  <li><a href="#code-dump" id="toc-code-dump" class="nav-link" data-scroll-target="#code-dump"><span class="header-section-number">4</span> Code Dump</a></li>
   </ul>
 </nav>
     </div>
@@ -282,8 +281,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Procedure 3: Implement Andy’s analysis<br>
-- How to use each patient’s individual accuracies - Andy uses variability to decide which omics level to use for which person - Easy-Hard analysis to identify clinical features to predict which omics will work for which person</p>
 </section>
 <section id="classifier-selection-plot" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Classifier Selection Plot</h1>
@@ -332,100 +329,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </div>
-</div>
-</section>
-<section id="code-dump" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> Code Dump</h1>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">character</span>(<span class="fu">length</span>(results_both)),       <span class="co"># Column for characteristics[4, "value"]</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">classifier =</span> <span class="fu">character</span>(<span class="fu">length</span>(results_both)), <span class="co"># Column for characteristics[1, "value"]</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sampleid =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)), <span class="co"># List-column for originalNames (sample IDs)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">actualOutcome =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)), <span class="co"># List-column for actualOutcome</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictions =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)), <span class="co"># Predictions (matched with sampleid)</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">averaged_predictions =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)) <span class="co"># Majority rule predictions</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(results_both)) {</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>data[i] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>characteristics[<span class="dv">4</span>, ][, <span class="st">"value"</span>]</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>classifier[i] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>characteristics[<span class="dv">1</span>, ][, <span class="st">"value"</span>]</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>sampleid[[i]] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>originalNames  <span class="co"># Store originalNames (sample IDs)</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>actualOutcome[[i]] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>actualOutcome  <span class="co"># Store actualOutcome</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  predictions <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>predictions</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  matched_predictions <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">sampleid =</span> results_both[[i]]<span class="sc">@</span>originalNames, <span class="at">prediction_4th =</span> predictions[, <span class="dv">4</span>])  <span class="co"># Extract the predicted cluster</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>predictions[[i]] <span class="ot">&lt;-</span> matched_predictions</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  majority_predictions <span class="ot">&lt;-</span> matched_predictions <span class="sc">%&gt;%</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(sampleid) <span class="sc">%&gt;%</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">majority_prediction =</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(prediction_4th), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span>]),<span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(majority_prediction) <span class="co"># Extract the column as a vector</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>averaged_predictions[[i]] <span class="ot">&lt;-</span> majority_predictions</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(sampleid, actualOutcome, averaged_predictions))</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the scatterplot</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> actualOutcome, <span class="at">y =</span> averaged_predictions)) <span class="sc">+</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span> <span class="co"># Scatter points with transparency</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(data <span class="sc">~</span> classifier) <span class="sc">+</span> <span class="co"># Facet by df$data and df$classifier</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Scatterplot of Averaged Predictions vs Actual Outcomes"</span>,</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Actual Outcome"</span>,</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Averaged Predictions"</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">100</span>, <span class="at">ncol =</span> <span class="fu">nrow</span>(p), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>,<span class="fu">rownames</span>(p)))</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p_cell <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">100</span>, <span class="at">ncol =</span> <span class="fu">nrow</span>(p), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>,<span class="fu">rownames</span>(p)))</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to populate the prediction matrix from classifyr_result</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>create_prediction_matrix <span class="ot">&lt;-</span> <span class="cf">function</span>(classifyr_result, prediction_matrix) {</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract data from classifyr_result</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  predictions_data <span class="ot">&lt;-</span> classifyr_result<span class="sc">@</span>predictions  <span class="co"># Entire predictions data</span></span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  sample_ids_predictions <span class="ot">&lt;-</span> predictions_data[, <span class="dv">1</span>]   <span class="co"># First column (sample IDs)</span></span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  values_to_insert <span class="ot">&lt;-</span> predictions_data[, <span class="dv">4</span>]         <span class="co"># Fourth column (values to insert)</span></span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Match and insert values</span></span>
-<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(sample_ids_predictions)) {</span>
-<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    sample_id <span class="ot">&lt;-</span> sample_ids_predictions[i]</span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (sample_id <span class="sc">%in%</span> <span class="fu">colnames</span>(prediction_matrix)) {</span>
-<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Find the column index for the sample_id</span></span>
-<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>      col_index <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">colnames</span>(prediction_matrix) <span class="sc">==</span> sample_id)</span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Insert the value into the next available row in that column</span></span>
-<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>      row_index <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">is.na</span>(prediction_matrix[, col_index]))[<span class="dv">1</span>]</span>
-<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>      prediction_matrix[row_index, col_index] <span class="ot">&lt;-</span> values_to_insert[i]</span>
-<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(prediction_matrix)</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p <span class="ot">&lt;-</span> <span class="fu">create_prediction_matrix</span>(classifyr_result3[[<span class="dv">1</span>]], prediction_matrix_p)</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p_cell <span class="ot">&lt;-</span> <span class="fu">create_prediction_matrix</span>(classifyr_result3[[<span class="dv">2</span>]], prediction_matrix_p_cell)</span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a><span class="co">#produce density plot</span></span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>outcome_last_char <span class="ot">&lt;-</span> <span class="fu">substr</span>(outcome, <span class="fu">nchar</span>(<span class="fu">as.character</span>(outcome)), <span class="fu">nchar</span>(<span class="fu">as.character</span>(outcome)))</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>calculate_proportion <span class="ot">&lt;-</span> <span class="cf">function</span>(prediction_matrix, outcome_last_char) {</span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>  proportions <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">ncol</span>(prediction_matrix))</span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">ncol</span>(prediction_matrix))) {</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>    column_values <span class="ot">&lt;-</span> prediction_matrix[, i]</span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the proportion of values matching the last character of the outcome</span></span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    proportions[i] <span class="ot">&lt;-</span> <span class="fu">mean</span>(column_values <span class="sc">==</span> outcome_last_char[i], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(proportions)</span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>proportions_p <span class="ot">&lt;-</span> <span class="fu">calculate_proportion</span>(prediction_matrix_p, outcome_last_char)</span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>proportions_p_cell <span class="ot">&lt;-</span> <span class="fu">calculate_proportion</span>(prediction_matrix_p_cell, outcome_last_char)</span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(proportions_p,proportions_p_cell)</span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(proportions_p), <span class="at">col =</span> <span class="st">"blue"</span>)</span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(proportions_p_cell), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topright"</span>,</span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"P"</span>, <span class="st">"P Cell"</span>),</span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>),</span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="dv">2</span></span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
