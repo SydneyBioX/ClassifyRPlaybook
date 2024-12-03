@@ -194,18 +194,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro"><span class="header-section-number">2.1</span> Intro</a></li>
   <li><a href="#next-thing" id="toc-next-thing" class="nav-link" data-scroll-target="#next-thing"><span class="header-section-number">2.2</span> Next thing</a></li>
   <li><a href="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" id="toc-final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" class="nav-link" data-scroll-target="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test"><span class="header-section-number">2.3</span> Final Procedure using SCM Classifier with 5% of features selected from t-test</a></li>
-  <li><a href="#classifier-selection-plot" id="toc-classifier-selection-plot" class="nav-link" data-scroll-target="#classifier-selection-plot"><span class="header-section-number">3</span> Classifier Selection Plot</a>
-  <ul class="collapse">
-  <li><a href="#everything-below-is-verbose-non-classifyr-code-left-in-for-comparison" id="toc-everything-below-is-verbose-non-classifyr-code-left-in-for-comparison" class="nav-link" data-scroll-target="#everything-below-is-verbose-non-classifyr-code-left-in-for-comparison"><span class="header-section-number">3.1</span> Everything below is verbose non-ClassifyR Code (Left in for comparison)</a></li>
-  <li><a href="#overall-pseudobulked-data" id="toc-overall-pseudobulked-data" class="nav-link" data-scroll-target="#overall-pseudobulked-data"><span class="header-section-number">3.2</span> Overall Pseudobulked Data</a>
-  <ul class="collapse">
-  <li><a href="#performance-comparison-between-cox-proportional-hazards-random-survival-forest" id="toc-performance-comparison-between-cox-proportional-hazards-random-survival-forest" class="nav-link" data-scroll-target="#performance-comparison-between-cox-proportional-hazards-random-survival-forest"><span class="header-section-number">3.2.1</span> Performance comparison between Cox proportional hazards &amp; random survival forest</a></li>
-  </ul></li>
-  <li><a href="#cell-specific-pseudobulked-data" id="toc-cell-specific-pseudobulked-data" class="nav-link" data-scroll-target="#cell-specific-pseudobulked-data"><span class="header-section-number">3.3</span> Cell-specific Pseudobulked Data</a>
-  <ul class="collapse">
-  <li><a href="#performance-comparison-between-cox-proportional-hazards-random-survival-forest-1" id="toc-performance-comparison-between-cox-proportional-hazards-random-survival-forest-1" class="nav-link" data-scroll-target="#performance-comparison-between-cox-proportional-hazards-random-survival-forest-1"><span class="header-section-number">3.3.1</span> Performance comparison between Cox proportional hazards &amp; random survival forest</a></li>
-  </ul></li>
-  </ul></li>
+  <li><a href="#classifier-selection-plot" id="toc-classifier-selection-plot" class="nav-link" data-scroll-target="#classifier-selection-plot"><span class="header-section-number">3</span> Classifier Selection Plot</a></li>
+  <li><a href="#code-dump" id="toc-code-dump" class="nav-link" data-scroll-target="#code-dump"><span class="header-section-number">4</span> Code Dump</a></li>
   </ul>
 </nav>
     </div>
@@ -253,21 +243,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 data-number="2.3" class="anchored" data-anchor-id="final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test"><span class="header-section-number">2.3</span> Final Procedure using SCM Classifier with 5% of features selected from t-test</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>clinical <span class="ot">=</span> <span class="fu">read.xlsx</span>(<span class="st">"clinical.xlsx"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"cluster_result_ER_and_PR_onlyER+PR+.rds"</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"pseudobulk_overall_sum.rds"</span>) </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span>p[<span class="fu">rownames</span>(p) <span class="sc">%in%</span> clusters<span class="sc">$</span>sample_id, ]</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"pseudobulk_celltype_sum.rds"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span>p_cell[<span class="fu">rownames</span>(p_cell) <span class="sc">%in%</span> clusters<span class="sc">$</span>sample_id, ]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>outcome <span class="ot">=</span> clusters<span class="sc">$</span>cluster</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(p, <span class="at">outcome =</span> outcome, <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p), <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">5</span>, <span class="at">nCores =</span> <span class="dv">5</span>, <span class="at">characteristicsLabel =</span> <span class="st">"overall_pseudobulking"</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>classifyr_result2 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(p_cell, <span class="at">outcome =</span> outcome, <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p_cell), <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">5</span>, <span class="at">nCores =</span> <span class="dv">5</span>, <span class="at">characteristicsLabel =</span> <span class="st">"cell_specific_pseudobulking"</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">=</span> <span class="fu">append</span>(classifyr_result, classifyr_result2)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">&lt;-</span> <span class="fu">lapply</span>(results_both, <span class="cf">function</span>(results) {</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Balanced Accuracy"</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(results_both, <span class="at">characteristicsList =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="st">"auto"</span>, <span class="at">fillColour =</span> <span class="st">"characteristicsLabel"</span>)) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>)) <span class="co">#performancePlot is essentially ggplot, so just add one more things</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>clinical <span class="ot">=</span> <span class="fu">read.xlsx</span>(<span class="st">"data/procedure1/clinical.xlsx"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_overall_sum.rds"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p[<span class="fu">rownames</span>(p) <span class="sc">%in%</span> clusters<span class="sc">$</span>sample_id, ]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_celltype_sum.rds"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> p_cell[<span class="fu">rownames</span>(p_cell) <span class="sc">%in%</span> clusters<span class="sc">$</span>sample_id, ]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"pseudo_bulk_overall"</span> <span class="ot">=</span> p, <span class="st">"pseudo_bulk_cell"</span> <span class="ot">=</span> p_cell)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>nFeatures <span class="ot">=</span> <span class="fu">list</span>(<span class="at">pseudo_bulk_overall =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p), <span class="at">pseudo_bulk_cell =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p_cell))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>outcome <span class="ot">=</span> <span class="fu">as.factor</span>(clusters<span class="sc">$</span>cluster)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(data, <span class="at">outcome =</span> outcome, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFeatures =</span> nFeatures, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result3)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -275,48 +263,68 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TableGrob (2 x 1) "arrange": 2 grobs
+  z     cells    name                grob
+1 1 (2-2,1-1) arrange      gtable[layout]
+2 2 (1-1,1-1) arrange text[GRID.text.276]</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(results) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Sample Accuracy"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}) <span class="co"># loop to calculate sample accuracy</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>accuracyMatrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(result) <span class="fu">performance</span>(result)[[<span class="st">"Sample Accuracy"</span>]])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(accuracyMatrix) <span class="co">#scatterplot of sample accuracies for both datasets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Procedure1_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Procedure 3: Implement Andy’s analysis<br>
+- How to use each patient’s individual accuracies - Andy uses variability to decide which omics level to use for which person - Easy-Hard analysis to identify clinical features to predict which omics will work for which person</p>
 </section>
 <section id="classifier-selection-plot" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Classifier Selection Plot</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># classifier must exactly match these options: randomForest, DLDA, kNN, GLM, ridgeGLM, elasticNetGLM, LASSOGLM, SVM, NSC, naiveBayes, mixturesNormals, CoxPH, CoxNet, randomSurvivalForest, XGB</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform cross-validation for each classifier</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    p,  </span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,  </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, </span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">classifier =</span> <span class="fu">c</span>(<span class="st">"SVM"</span>, <span class="st">"kNN"</span>, <span class="st">"randomForest"</span>, </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>               <span class="st">"naiveBayes"</span>, <span class="st">"XGB"</span>), <span class="co"># Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p), </span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFolds =</span> <span class="dv">5</span>,              </span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">nRepeats =</span> <span class="dv">5</span>,            </span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">nCores =</span> <span class="dv">5</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">characteristicsLabel =</span> <span class="st">"overall_pseudobulking"</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>classifyr_result2 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    p_cell,  </span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,  </span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, </span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">classifier =</span>  <span class="fu">c</span>(<span class="st">"SVM"</span>, <span class="st">"kNN"</span>, <span class="st">"randomForest"</span>, </span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>               <span class="st">"naiveBayes"</span>, <span class="st">"XGB"</span>), <span class="co"># Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p_cell), </span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFolds =</span> <span class="dv">5</span>,              </span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">nRepeats =</span> <span class="dv">5</span>,            </span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">nCores =</span> <span class="dv">5</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">characteristicsLabel =</span> <span class="st">"cell_specific_pseudobulking"</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">=</span> <span class="fu">append</span>(classifyr_result, classifyr_result2)</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">&lt;-</span> <span class="fu">lapply</span>(results_both, <span class="cf">function</span>(results) {</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Balanced Accuracy"</span>)</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(results_both, <span class="at">characteristicsList =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="st">"auto"</span>, <span class="at">fillColour =</span> <span class="st">"characteristicsLabel"</span>)) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>)) <span class="co">#performancePlot is essentially ggplot, so just add one more things</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># classifier must exactly match these options: randomForest, DLDA, kNN, GLM, ridgeGLM, elasticNetGLM, LASSOGLM, SVM, NSC, naiveBayes, mixturesNormals, CoxPH, CoxNet, randomSurvivalForest, XGB</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform cross-validation for each classifier</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    p,  </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,  </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">classifier =</span> <span class="fu">c</span>(<span class="st">"SVM"</span>, <span class="st">"kNN"</span>, <span class="st">"randomForest"</span>, </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>               <span class="st">"naiveBayes"</span>, <span class="st">"XGB"</span>), <span class="co"># Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p), </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFolds =</span> <span class="dv">5</span>,              </span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">nRepeats =</span> <span class="dv">5</span>,            </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">nCores =</span> <span class="dv">5</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">characteristicsLabel =</span> <span class="st">"overall_pseudobulking"</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>classifyr_result2 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    p_cell,  </span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,  </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, </span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">classifier =</span>  <span class="fu">c</span>(<span class="st">"SVM"</span>, <span class="st">"kNN"</span>, <span class="st">"randomForest"</span>, </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>               <span class="st">"naiveBayes"</span>, <span class="st">"XGB"</span>), <span class="co"># Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p_cell), </span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFolds =</span> <span class="dv">5</span>,              </span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">nRepeats =</span> <span class="dv">5</span>,            </span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">nCores =</span> <span class="dv">5</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">characteristicsLabel =</span> <span class="st">"cell_specific_pseudobulking"</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">=</span> <span class="fu">append</span>(classifyr_result, classifyr_result2)</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">&lt;-</span> <span class="fu">lapply</span>(results_both, <span class="cf">function</span>(results) {</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Balanced Accuracy"</span>)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(results_both, <span class="at">characteristicsList =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="st">"auto"</span>, <span class="at">fillColour =</span> <span class="st">"characteristicsLabel"</span>)) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>)) <span class="co">#performancePlot is essentially ggplot, so just add one more things</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -325,309 +333,102 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<section id="everything-below-is-verbose-non-classifyr-code-left-in-for-comparison" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="everything-below-is-verbose-non-classifyr-code-left-in-for-comparison"><span class="header-section-number">3.1</span> Everything below is verbose non-ClassifyR Code (Left in for comparison)</h2>
 </section>
-<section id="overall-pseudobulked-data" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="overall-pseudobulked-data"><span class="header-section-number">3.2</span> Overall Pseudobulked Data</h2>
+<section id="code-dump" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Code Dump</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>clinical <span class="ot">=</span> <span class="fu">read.xlsx</span>(<span class="st">"clinical.xlsx"</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>outcome <span class="ot">=</span> <span class="fu">substring</span>(clinical<span class="sc">$</span>OS_STATUS,<span class="dv">1</span>,<span class="dv">1</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"pseudobulk_overall_sum.rds"</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>p_filtered <span class="ot">&lt;-</span> p[, <span class="fu">colSums</span>(p <span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">&gt;</span> <span class="dv">0</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>p_values <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">colnames</span>(p_filtered), <span class="cf">function</span>(feature) {</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t.test</span>(p_filtered[[feature]] <span class="sc">~</span> outcome, <span class="at">na.action =</span> na.omit)<span class="sc">$</span>p.value</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>selected_features <span class="ot">&lt;-</span> <span class="fu">colnames</span>(p_filtered)[p_values <span class="sc">&lt;</span> <span class="fl">0.05</span>]</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The selected features by cell-specific pseudobulking using an fdr of 0.05 are:</span><span class="sc">\n</span><span class="st">"</span>, </span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(selected_features, <span class="at">collapse =</span> <span class="st">", "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>The selected features by cell-specific pseudobulking using an fdr of 0.05 are:
- ADGRE5, AIF1, FGL2, FOXC2, GLIPR1, ITM2C, LDHB, MMP12, S100A4, SMAP2, SSTR2, TCEAL7, TOMM7 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>omics_selected <span class="ot">&lt;-</span> p_filtered[,selected_features]  <span class="co"># Subset omics data</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>nFeatures <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">omics =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(selected_features))</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">omics =</span> omics_selected),  <span class="co"># Only use omics data</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome =</span> outcome,  <span class="co"># Use the outcome column</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">omics =</span> selected_features))),</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFeatures =</span> nFeatures,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFolds =</span> <span class="dv">5</span>,       <span class="co"># 5-fold cross-validation</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">nRepeats =</span> <span class="dv">5</span>,     <span class="co"># 5 repeats</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">nCores =</span> <span class="dv">5</span>        <span class="co"># Parallel processing with 5 cores</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(classifyr_result, <span class="at">file =</span> <span class="st">"classifyr_result.rds"</span>)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>classifyr_result_forest <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">omics =</span> omics_selected),  <span class="co"># Only use omics data</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome =</span> outcome,  <span class="co"># Use the outcome column</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">omics =</span> selected_features))),</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFeatures =</span> nFeatures,</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">classifier =</span> <span class="st">"randomForest"</span>,</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFolds =</span> <span class="dv">5</span>,       <span class="co"># 5-fold cross-validation</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">nRepeats =</span> <span class="dv">5</span>,     <span class="co"># 5 repeats</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">nCores =</span> <span class="dv">5</span>        <span class="co"># Parallel processing with 5 cores</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<section id="performance-comparison-between-cox-proportional-hazards-random-survival-forest" class="level3" data-number="3.2.1">
-<h3 data-number="3.2.1" class="anchored" data-anchor-id="performance-comparison-between-cox-proportional-hazards-random-survival-forest"><span class="header-section-number">3.2.1</span> Performance comparison between Cox proportional hazards &amp; random survival forest</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract predictions</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">predictions</span>(classifyr_result)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>named_outcomes <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">as.list</span>(outcome),clinical<span class="sc">$</span>patientId)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Actual outcomes</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>predictions<span class="sc">$</span>actual <span class="ot">&lt;-</span> named_outcomes</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>predictions<span class="sc">$</span>actual <span class="ot">&lt;-</span> <span class="fu">unlist</span>(predictions<span class="sc">$</span>actual)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the confusion matrix</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>confusion_matrix <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> predictions<span class="sc">$</span>class, <span class="at">Actual =</span> predictions<span class="sc">$</span>actual)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         Actual
-Predicted   0   1
-        0 393  45
-        1  22   0</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Performance Metrics</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>TP <span class="ot">&lt;-</span> <span class="fu">diag</span>(confusion_matrix)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>FN <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(confusion_matrix) <span class="sc">-</span> TP</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>FP <span class="ot">&lt;-</span> <span class="fu">colSums</span>(confusion_matrix) <span class="sc">-</span> TP</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>TN <span class="ot">&lt;-</span> <span class="fu">sum</span>(confusion_matrix) <span class="sc">-</span> (TP <span class="sc">+</span> FP <span class="sc">+</span> FN)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>sensitivity <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FN) <span class="co"># Recall or Sensitivity</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>specificity <span class="ot">&lt;-</span> TN <span class="sc">/</span> (TN <span class="sc">+</span> FP) <span class="co"># Specificity</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>precision <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FP)   <span class="co"># Precision</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="fu">sum</span>(TP) <span class="sc">/</span> <span class="fu">sum</span>(confusion_matrix)</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>f1_score <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (precision <span class="sc">*</span> sensitivity) <span class="sc">/</span> (precision <span class="sc">+</span> sensitivity)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Metrics for predictions from overall pseudobulking:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Metrics for predictions from overall pseudobulking:</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy:"</span>, accuracy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 0.8543478 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sensitivity (Recall) per class:"</span>, sensitivity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Sensitivity (Recall) per class: 0.8972603 0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Specificity per class:"</span>, specificity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Specificity per class: 0 0.8972603 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Precision per class:"</span>, precision, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Precision per class: 0.946988 0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"F1 Score per class:"</span>, f1_score, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>F1 Score per class: 0.9214537 NaN </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Confusion_matrix package to calculate everything: </span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract predictions</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>predictions_forest <span class="ot">&lt;-</span> <span class="fu">predictions</span>(classifyr_result_forest)</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>predictions_forest<span class="sc">$</span>actual <span class="ot">&lt;-</span> named_outcomes <span class="co">#actual outcome</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>predictions_forest<span class="sc">$</span>actual <span class="ot">&lt;-</span> <span class="fu">unlist</span>(predictions_forest<span class="sc">$</span>actual)</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the confusion matrix</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>confusion_matrix_forest <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> predictions_forest<span class="sc">$</span>class, <span class="at">Actual =</span> predictions_forest<span class="sc">$</span>actual)</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># View the confusion matrix</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix_forest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         Actual
-Predicted   0   1
-        0 395  45
-        1  20   0</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>TP <span class="ot">&lt;-</span> <span class="fu">diag</span>(confusion_matrix_forest)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>FN <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(confusion_matrix_forest) <span class="sc">-</span> TP</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>FP <span class="ot">&lt;-</span> <span class="fu">colSums</span>(confusion_matrix_forest) <span class="sc">-</span> TP</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>TN <span class="ot">&lt;-</span> <span class="fu">sum</span>(confusion_matrix_forest) <span class="sc">-</span> (TP <span class="sc">+</span> FP <span class="sc">+</span> FN)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Performance Metrics</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>sensitivity <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FN) <span class="co"># Recall or Sensitivity</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>specificity <span class="ot">&lt;-</span> TN <span class="sc">/</span> (TN <span class="sc">+</span> FP) <span class="co"># Specificity</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>precision <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FP)   <span class="co"># Precision</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="fu">sum</span>(TP) <span class="sc">/</span> <span class="fu">sum</span>(confusion_matrix_forest)</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>f1_score <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (precision <span class="sc">*</span> sensitivity) <span class="sc">/</span> (precision <span class="sc">+</span> sensitivity)</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Metrics for predictions from overall pseudobulking using random forest:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Metrics for predictions from overall pseudobulking using random forest:</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy:"</span>, accuracy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 0.8586957 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sensitivity (Recall) per class:"</span>, sensitivity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Sensitivity (Recall) per class: 0.8977273 0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Specificity per class:"</span>, specificity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Specificity per class: 0 0.8977273 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Precision per class:"</span>, precision, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Precision per class: 0.9518072 0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"F1 Score per class:"</span>, f1_score, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>F1 Score per class: 0.9239766 NaN </code></pre>
-</div>
-</div>
-</section>
-</section>
-<section id="cell-specific-pseudobulked-data" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="cell-specific-pseudobulked-data"><span class="header-section-number">3.3</span> Cell-specific Pseudobulked Data</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"pseudobulk_celltype_sum.rds"</span>)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>p_cell_filtered <span class="ot">&lt;-</span> p_cell[, <span class="fu">colSums</span>(p_cell <span class="sc">!=</span> <span class="dv">0</span>) <span class="sc">&gt;</span> <span class="dv">0</span>, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>p_values_cell <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">colnames</span>(p_cell_filtered), <span class="cf">function</span>(feature) {</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t.test</span>(p_cell_filtered[[feature]] <span class="sc">~</span> outcome, <span class="at">na.action =</span> na.omit)<span class="sc">$</span>p.value</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>selected_cell_features <span class="ot">&lt;-</span> <span class="fu">colnames</span>(p_cell_filtered)[p_values_cell <span class="sc">&lt;</span> <span class="fl">0.05</span>]</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The selected features by cell-specific pseudobulking using an fdr of 0.05 are:</span><span class="sc">\n</span><span class="st">"</span>, </span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(selected_cell_features, <span class="at">collapse =</span> <span class="st">", "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>The selected features by cell-specific pseudobulking using an fdr of 0.05 are:
- Stromal__SSTR2, Malignant__C5orf46, Malignant__CLEC9A, Malignant__MMP12, Malignant__TCEAL7, Malignant__TCL1A, T__SSTR2, T__TCEAL7, Macrophage__CLEC9A, Macrophage__FOXC2, Macrophage__MMP12, Macrophage__SSTR2, Macrophage__TCEAL7, Myoepi__FOXC2, DC_Mast__ADIPOQ, DC_Mast__C5orf46, DC_Mast__SCGB2A1, DC_Mast__SSTR2, DC_Mast__TCEAL7 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>omics_selected_cell <span class="ot">&lt;-</span> p_cell_filtered[,selected_cell_features]  <span class="co"># Subset omics data</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>nFeatures_cell <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">omics =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(selected_cell_features))</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>classifyr_result_cell <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">omics =</span> omics_selected_cell),  </span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome =</span> outcome,  <span class="co"># Use the outcome column</span></span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">omics =</span> selected_cell_features))),</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFeatures =</span> nFeatures_cell,</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFolds =</span> <span class="dv">5</span>,       <span class="co"># 5-fold cross-validation</span></span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">nRepeats =</span> <span class="dv">5</span>,     <span class="co"># 5 repeats</span></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">nCores =</span> <span class="dv">5</span>        <span class="co"># Parallel processing with 5 cores</span></span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(classifyr_result_cell, <span class="at">file =</span> <span class="st">"classifyr_result_cell.rds"</span>)</span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>classifyr_result_cell_forest <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">omics =</span> omics_selected_cell),  <span class="co"># Only use omics data</span></span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome =</span> outcome,  <span class="co"># Use the outcome column</span></span>
-<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">omics =</span> selected_cell_features))),</span>
-<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFeatures =</span> nFeatures_cell,</span>
-<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">classifier =</span> <span class="st">"randomForest"</span>,</span>
-<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">nFolds =</span> <span class="dv">5</span>,       <span class="co"># 5-fold cross-validation</span></span>
-<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">nRepeats =</span> <span class="dv">5</span>,     <span class="co"># 5 repeats</span></span>
-<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">nCores =</span> <span class="dv">5</span>        <span class="co"># Parallel processing with 5 cores</span></span>
-<span id="cb37-24"><a href="#cb37-24" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<section id="performance-comparison-between-cox-proportional-hazards-random-survival-forest-1" class="level3" data-number="3.3.1">
-<h3 data-number="3.3.1" class="anchored" data-anchor-id="performance-comparison-between-cox-proportional-hazards-random-survival-forest-1"><span class="header-section-number">3.3.1</span> Performance comparison between Cox proportional hazards &amp; random survival forest</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract predictions</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>predictions_cell <span class="ot">&lt;-</span> <span class="fu">predictions</span>(classifyr_result_cell)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>named_outcomes <span class="ot">&lt;-</span> <span class="fu">setNames</span>(<span class="fu">as.list</span>(outcome),clinical<span class="sc">$</span>patientId)</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Actual Outcomes</span></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>predictions_cell<span class="sc">$</span>actual <span class="ot">&lt;-</span> named_outcomes</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>predictions_cell<span class="sc">$</span>actual <span class="ot">&lt;-</span> <span class="fu">unlist</span>(predictions_cell<span class="sc">$</span>actual)</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the confusion matrix</span></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>confusion_matrix_cell <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> predictions_cell<span class="sc">$</span>class, <span class="at">Actual =</span> predictions_cell<span class="sc">$</span>actual)</span>
-<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix_cell)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         Actual
-Predicted   0   1
-        0 403  43
-        1  12   2</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>TP <span class="ot">&lt;-</span> <span class="fu">diag</span>(confusion_matrix_cell)</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>FN <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(confusion_matrix_cell) <span class="sc">-</span> TP</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>FP <span class="ot">&lt;-</span> <span class="fu">colSums</span>(confusion_matrix_cell) <span class="sc">-</span> TP</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>TN <span class="ot">&lt;-</span> <span class="fu">sum</span>(confusion_matrix_cell) <span class="sc">-</span> (TP <span class="sc">+</span> FP <span class="sc">+</span> FN)</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Performance Metrics</span></span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>sensitivity <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FN) <span class="co"># Recall or Sensitivity</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>specificity <span class="ot">&lt;-</span> TN <span class="sc">/</span> (TN <span class="sc">+</span> FP) <span class="co"># Specificity</span></span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>precision <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FP)   <span class="co"># Precision'accuracy &lt;- sum(TP) / sum(confusion_matrix_cell_forest)</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="fu">sum</span>(TP) <span class="sc">/</span> <span class="fu">sum</span>(confusion_matrix_cell)</span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>f1_score <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (precision <span class="sc">*</span> sensitivity) <span class="sc">/</span> (precision <span class="sc">+</span> sensitivity)</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Metrics for predictions from cell-specific pseudobulking:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Metrics for predictions from cell-specific pseudobulking:</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy:"</span>, accuracy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 0.8804348 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sensitivity (Recall) per class:"</span>, sensitivity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Sensitivity (Recall) per class: 0.9035874 0.1428571 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Specificity per class:"</span>, specificity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Specificity per class: 0.1428571 0.9035874 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Precision per class:"</span>, precision, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Precision per class: 0.9710843 0.04444444 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"F1 Score per class:"</span>, f1_score, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>F1 Score per class: 0.9361208 0.06779661 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract predictions</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>predictions_cell_forest <span class="ot">&lt;-</span> <span class="fu">predictions</span>(classifyr_result_cell_forest)</span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>predictions_cell_forest<span class="sc">$</span>actual <span class="ot">&lt;-</span> named_outcomes <span class="co">#actual outcome</span></span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>predictions_cell_forest<span class="sc">$</span>actual <span class="ot">&lt;-</span> <span class="fu">unlist</span>(predictions_cell_forest<span class="sc">$</span>actual)</span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate the confusion matrix</span></span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>confusion_matrix_cell_forest <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Predicted =</span> predictions_cell_forest<span class="sc">$</span>class, <span class="at">Actual =</span> predictions_cell_forest<span class="sc">$</span>actual)</span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="co"># View the confusion matrix</span></span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix_cell_forest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         Actual
-Predicted   0   1
-        0 399  45
-        1  16   0</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Total True Positives (TP), True Negatives (TN), False Positives (FP), False Negatives (FN)</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>TP <span class="ot">&lt;-</span> <span class="fu">diag</span>(confusion_matrix_cell_forest)</span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>FN <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(confusion_matrix_cell_forest) <span class="sc">-</span> TP</span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>FP <span class="ot">&lt;-</span> <span class="fu">colSums</span>(confusion_matrix_cell_forest) <span class="sc">-</span> TP</span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>TN <span class="ot">&lt;-</span> <span class="fu">sum</span>(confusion_matrix_cell_forest) <span class="sc">-</span> (TP <span class="sc">+</span> FP <span class="sc">+</span> FN)</span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculating metrics for each class</span></span>
-<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>sensitivity <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FN) <span class="co"># Recall or Sensitivity</span></span>
-<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>specificity <span class="ot">&lt;-</span> TN <span class="sc">/</span> (TN <span class="sc">+</span> FP) <span class="co"># Specificity</span></span>
-<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>precision <span class="ot">&lt;-</span> TP <span class="sc">/</span> (TP <span class="sc">+</span> FP)   <span class="co"># Precision</span></span>
-<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> <span class="fu">sum</span>(TP) <span class="sc">/</span> <span class="fu">sum</span>(confusion_matrix_cell_forest)</span>
-<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>f1_score <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> (precision <span class="sc">*</span> sensitivity) <span class="sc">/</span> (precision <span class="sc">+</span> sensitivity)</span>
-<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Metrics for predictions from cell-specific pseudobulking using random forest:</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Metrics for predictions from cell-specific pseudobulking using random forest:</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Accuracy:"</span>, accuracy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Accuracy: 0.8673913 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Sensitivity (Recall) per class:"</span>, sensitivity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Sensitivity (Recall) per class: 0.8986486 0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Specificity per class:"</span>, specificity, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Specificity per class: 0 0.8986486 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Precision per class:"</span>, precision, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Precision per class: 0.9614458 0 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"F1 Score per class:"</span>, f1_score, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>F1 Score per class: 0.9289872 NaN </code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> <span class="fu">character</span>(<span class="fu">length</span>(results_both)),       <span class="co"># Column for characteristics[4, "value"]</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">classifier =</span> <span class="fu">character</span>(<span class="fu">length</span>(results_both)), <span class="co"># Column for characteristics[1, "value"]</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sampleid =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)), <span class="co"># List-column for originalNames (sample IDs)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">actualOutcome =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)), <span class="co"># List-column for actualOutcome</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">predictions =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)), <span class="co"># Predictions (matched with sampleid)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">averaged_predictions =</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(results_both)) <span class="co"># Majority rule predictions</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(results_both)) {</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>data[i] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>characteristics[<span class="dv">4</span>, ][, <span class="st">"value"</span>]</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>classifier[i] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>characteristics[<span class="dv">1</span>, ][, <span class="st">"value"</span>]</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>sampleid[[i]] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>originalNames  <span class="co"># Store originalNames (sample IDs)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>actualOutcome[[i]] <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>actualOutcome  <span class="co"># Store actualOutcome</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  predictions <span class="ot">&lt;-</span> results_both[[i]]<span class="sc">@</span>predictions</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  matched_predictions <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">sampleid =</span> results_both[[i]]<span class="sc">@</span>originalNames, <span class="at">prediction_4th =</span> predictions[, <span class="dv">4</span>])  <span class="co"># Extract the predicted cluster</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>predictions[[i]] <span class="ot">&lt;-</span> matched_predictions</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  majority_predictions <span class="ot">&lt;-</span> matched_predictions <span class="sc">%&gt;%</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(sampleid) <span class="sc">%&gt;%</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">majority_prediction =</span> <span class="fu">names</span>(<span class="fu">sort</span>(<span class="fu">table</span>(prediction_4th), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span>]),<span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(majority_prediction) <span class="co"># Extract the column as a vector</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  df<span class="sc">$</span>averaged_predictions[[i]] <span class="ot">&lt;-</span> majority_predictions</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(<span class="at">cols =</span> <span class="fu">c</span>(sampleid, actualOutcome, averaged_predictions))</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the scatterplot</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> actualOutcome, <span class="at">y =</span> averaged_predictions)) <span class="sc">+</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span> <span class="co"># Scatter points with transparency</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(data <span class="sc">~</span> classifier) <span class="sc">+</span> <span class="co"># Facet by df$data and df$classifier</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Scatterplot of Averaged Predictions vs Actual Outcomes"</span>,</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Actual Outcome"</span>,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Averaged Predictions"</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">100</span>, <span class="at">ncol =</span> <span class="fu">nrow</span>(p), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>,<span class="fu">rownames</span>(p)))</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p_cell <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> <span class="dv">100</span>, <span class="at">ncol =</span> <span class="fu">nrow</span>(p), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>,<span class="fu">rownames</span>(p)))</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to populate the prediction matrix from classifyr_result</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>create_prediction_matrix <span class="ot">&lt;-</span> <span class="cf">function</span>(classifyr_result, prediction_matrix) {</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Extract data from classifyr_result</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  predictions_data <span class="ot">&lt;-</span> classifyr_result<span class="sc">@</span>predictions  <span class="co"># Entire predictions data</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  sample_ids_predictions <span class="ot">&lt;-</span> predictions_data[, <span class="dv">1</span>]   <span class="co"># First column (sample IDs)</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  values_to_insert <span class="ot">&lt;-</span> predictions_data[, <span class="dv">4</span>]         <span class="co"># Fourth column (values to insert)</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Match and insert values</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(sample_ids_predictions)) {</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    sample_id <span class="ot">&lt;-</span> sample_ids_predictions[i]</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (sample_id <span class="sc">%in%</span> <span class="fu">colnames</span>(prediction_matrix)) {</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Find the column index for the sample_id</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>      col_index <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">colnames</span>(prediction_matrix) <span class="sc">==</span> sample_id)</span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Insert the value into the next available row in that column</span></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>      row_index <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">is.na</span>(prediction_matrix[, col_index]))[<span class="dv">1</span>]</span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>      prediction_matrix[row_index, col_index] <span class="ot">&lt;-</span> values_to_insert[i]</span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(prediction_matrix)</span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p <span class="ot">&lt;-</span> <span class="fu">create_prediction_matrix</span>(classifyr_result3[[<span class="dv">1</span>]], prediction_matrix_p)</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>prediction_matrix_p_cell <span class="ot">&lt;-</span> <span class="fu">create_prediction_matrix</span>(classifyr_result3[[<span class="dv">2</span>]], prediction_matrix_p_cell)</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a><span class="co">#produce density plot</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>outcome_last_char <span class="ot">&lt;-</span> <span class="fu">substr</span>(outcome, <span class="fu">nchar</span>(<span class="fu">as.character</span>(outcome)), <span class="fu">nchar</span>(<span class="fu">as.character</span>(outcome)))</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>calculate_proportion <span class="ot">&lt;-</span> <span class="cf">function</span>(prediction_matrix, outcome_last_char) {</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>  proportions <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">ncol</span>(prediction_matrix))</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">ncol</span>(prediction_matrix))) {</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>    column_values <span class="ot">&lt;-</span> prediction_matrix[, i]</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculate the proportion of values matching the last character of the outcome</span></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    proportions[i] <span class="ot">&lt;-</span> <span class="fu">mean</span>(column_values <span class="sc">==</span> outcome_last_char[i], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(proportions)</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>proportions_p <span class="ot">&lt;-</span> <span class="fu">calculate_proportion</span>(prediction_matrix_p, outcome_last_char)</span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>proportions_p_cell <span class="ot">&lt;-</span> <span class="fu">calculate_proportion</span>(prediction_matrix_p_cell, outcome_last_char)</span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(proportions_p,proportions_p_cell)</span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(proportions_p), <span class="at">col =</span> <span class="st">"blue"</span>)</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(proportions_p_cell), <span class="at">col =</span> <span class="st">"red"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(</span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>  <span class="st">"topright"</span>,</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">"P"</span>, <span class="st">"P Cell"</span>),</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"red"</span>),</span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="dv">2</span></span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
-</section>
-</section>
 </section>
 
 </main> <!-- /main -->

@@ -23,11 +23,11 @@ library(reshape2)
 ## Final Procedure using SCM Classifier with 5% of features selected from t-test
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
-clinical = read.xlsx("clinical.xlsx")
-clusters <- readRDS("cluster_result_ER_and_PR_onlyER+PR+.rds")
-p <- readRDS("pseudobulk_overall_sum.rds")
+clinical = read.xlsx("data/procedure1/clinical.xlsx")
+clusters <- readRDS("data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds")
+p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds")
 p <- p[rownames(p) %in% clusters$sample_id, ]
-p_cell <- readRDS("pseudobulk_celltype_sum.rds")
+p_cell <- readRDS("data/procedure1/pseudobulk_celltype_sum.rds")
 p_cell <- p_cell[rownames(p_cell) %in% clusters$sample_id, ]
 data = list("pseudo_bulk_overall" = p, "pseudo_bulk_cell" = p_cell)
 nFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))
@@ -44,34 +44,6 @@ accuracyMatrix <- sapply(classifyr_result3, function(result) performance(result)
 plot(accuracyMatrix) #scatterplot of sample accuracies for both datasets
 
 ```
-
-```{r}
-outcome_last_char <- substr(outcome, nchar(as.character(outcome)), nchar(as.character(outcome)))
-calculate_proportion <- function(prediction_matrix, outcome_last_char) {
-  proportions <- numeric(ncol(prediction_matrix))
-  for (i in seq_len(ncol(prediction_matrix))) {
-    column_values <- prediction_matrix[, i]
-    # Calculate the proportion of values matching the last character of the outcome
-    proportions[i] <- mean(column_values == outcome_last_char[i], na.rm = TRUE)
-  }
-  return(proportions)
-}
-
-proportions_p <- calculate_proportion(prediction_matrix_p, outcome_last_char)
-proportions_p_cell <- calculate_proportion(prediction_matrix_p_cell, outcome_last_char)
-plot(proportions_p,proportions_p_cell)
-
-
-plot(density(proportions_p), col = "blue")
-lines(density(proportions_p_cell), col = "red", lwd = 2)
-legend(
-  "topright",
-  legend = c("P", "P Cell"),
-  col = c("blue", "red"),
-  lwd = 2
-)
-```
-
 
 Procedure 3: Implement Andy's analysis  
 - How to use each patient's individual accuracies 
@@ -119,212 +91,6 @@ results_both <- lapply(results_both, function(results) {
 
 performancePlot(results_both, characteristicsList = list(x = "auto", fillColour = "characteristicsLabel")) + theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1)) #performancePlot is essentially ggplot, so just add one more things
 ```
-
-## Everything below is verbose non-ClassifyR Code (Left in for comparison)
-
-## Overall Pseudobulked Data
-
-```{r}
-clinical = read.xlsx("data/procedure1/clinical.xlsx")
-outcome = substring(clinical$OS_STATUS,1,1)
-
-p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds")
-p_filtered <- p[, colSums(p != 0) > 0, drop = FALSE]
-
-p_values <- sapply(colnames(p_filtered), function(feature) {
-  t.test(p_filtered[[feature]] ~ outcome, na.action = na.omit)$p.value
-})
-selected_features <- colnames(p_filtered)[p_values < 0.05]
-cat("The selected features by cell-specific pseudobulking using an fdr of 0.05 are:\n", 
-    paste(selected_features, collapse = ", "), "\n")
-
-omics_selected <- p_filtered[,selected_features]  # Subset omics data
-nFeatures <- list(omics = 1:length(selected_features))
-
-classifyr_result <- crossValidate(
-  list(omics = omics_selected),  # Only use omics data
-  outcome = outcome,  # Use the outcome column
-  extraParams = list(prepare = list(useFeatures = list(omics = selected_features))),
-  nFeatures = nFeatures,
-  nFolds = 5,       # 5-fold cross-validation
-  nRepeats = 5,     # 5 repeats
-  nCores = 5        # Parallel processing with 5 cores
-)
-#saveRDS(classifyr_result, file = "classifyr_result.rds")
-
-classifyr_result_forest <- crossValidate(
-  list(omics = omics_selected),  # Only use omics data
-  outcome = outcome,  # Use the outcome column
-  extraParams = list(prepare = list(useFeatures = list(omics = selected_features))),
-  nFeatures = nFeatures,
-  classifier = "randomForest",
-  nFolds = 5,       # 5-fold cross-validation
-  nRepeats = 5,     # 5 repeats
-  nCores = 5        # Parallel processing with 5 cores
-)
-```
-
-### Performance comparison between Cox proportional hazards & random survival forest
-
-```{r}
-# Extract predictions
-predictions <- predictions(classifyr_result)
-named_outcomes <- setNames(as.list(outcome),clinical$patientId)
-# Actual outcomes
-predictions$actual <- named_outcomes
-predictions$actual <- unlist(predictions$actual)
-# Generate the confusion matrix
-confusion_matrix <- table(Predicted = predictions$class, Actual = predictions$actual)
-print(confusion_matrix)
-#Performance Metrics
-TP <- diag(confusion_matrix)
-FN <- rowSums(confusion_matrix) - TP
-FP <- colSums(confusion_matrix) - TP
-TN <- sum(confusion_matrix) - (TP + FP + FN)
-sensitivity <- TP / (TP + FN) # Recall or Sensitivity
-specificity <- TN / (TN + FP) # Specificity
-precision <- TP / (TP + FP)   # Precision
-accuracy <- sum(TP) / sum(confusion_matrix)
-f1_score <- 2 * (precision * sensitivity) / (precision + sensitivity)
-cat("Metrics for predictions from overall pseudobulking:\n")
-cat("Accuracy:", accuracy, "\n")
-cat("Sensitivity (Recall) per class:", sensitivity, "\n")
-cat("Specificity per class:", specificity, "\n")
-cat("Precision per class:", precision, "\n")
-cat("F1 Score per class:", f1_score, "\n")
-
-#Confusion_matrix package to calculate everything: 
-
-# Extract predictions
-predictions_forest <- predictions(classifyr_result_forest)
-predictions_forest$actual <- named_outcomes #actual outcome
-predictions_forest$actual <- unlist(predictions_forest$actual)
-# Generate the confusion matrix
-confusion_matrix_forest <- table(Predicted = predictions_forest$class, Actual = predictions_forest$actual)
-# View the confusion matrix
-print(confusion_matrix_forest)
-
-TP <- diag(confusion_matrix_forest)
-FN <- rowSums(confusion_matrix_forest) - TP
-FP <- colSums(confusion_matrix_forest) - TP
-TN <- sum(confusion_matrix_forest) - (TP + FP + FN)
-# Performance Metrics
-sensitivity <- TP / (TP + FN) # Recall or Sensitivity
-specificity <- TN / (TN + FP) # Specificity
-precision <- TP / (TP + FP)   # Precision
-accuracy <- sum(TP) / sum(confusion_matrix_forest)
-f1_score <- 2 * (precision * sensitivity) / (precision + sensitivity)
-
-cat("Metrics for predictions from overall pseudobulking using random forest:\n")
-cat("Accuracy:", accuracy, "\n")
-cat("Sensitivity (Recall) per class:", sensitivity, "\n")
-cat("Specificity per class:", specificity, "\n")
-cat("Precision per class:", precision, "\n")
-cat("F1 Score per class:", f1_score, "\n")
-```
-
-## Cell-specific Pseudobulked Data
-
-```{r}
-p_cell <- readRDS("pseudobulk_celltype_sum.rds")
-p_cell_filtered <- p_cell[, colSums(p_cell != 0) > 0, drop = FALSE]
-
-p_values_cell <- sapply(colnames(p_cell_filtered), function(feature) {
-  t.test(p_cell_filtered[[feature]] ~ outcome, na.action = na.omit)$p.value
-})
-
-selected_cell_features <- colnames(p_cell_filtered)[p_values_cell < 0.05]
-cat("The selected features by cell-specific pseudobulking using an fdr of 0.05 are:\n", 
-    paste(selected_cell_features, collapse = ", "), "\n")
-
-omics_selected_cell <- p_cell_filtered[,selected_cell_features]  # Subset omics data
-nFeatures_cell <- list(omics = 1:length(selected_cell_features))
-
-classifyr_result_cell <- crossValidate(
-  list(omics = omics_selected_cell),  
-  outcome = outcome,  # Use the outcome column
-  extraParams = list(prepare = list(useFeatures = list(omics = selected_cell_features))),
-  nFeatures = nFeatures_cell,
-  nFolds = 5,       # 5-fold cross-validation
-  nRepeats = 5,     # 5 repeats
-  nCores = 5        # Parallel processing with 5 cores
-)
-#saveRDS(classifyr_result_cell, file = "classifyr_result_cell.rds")
-
-classifyr_result_cell_forest <- crossValidate(
-  list(omics = omics_selected_cell),  # Only use omics data
-  outcome = outcome,  # Use the outcome column
-  extraParams = list(prepare = list(useFeatures = list(omics = selected_cell_features))),
-  nFeatures = nFeatures_cell,
-  classifier = "randomForest",
-  nFolds = 5,       # 5-fold cross-validation
-  nRepeats = 5,     # 5 repeats
-  nCores = 5        # Parallel processing with 5 cores
-)
-```
-
-### Performance comparison between Cox proportional hazards & random survival forest
-
-```{r}
-# Extract predictions
-predictions_cell <- predictions(classifyr_result_cell)
-named_outcomes <- setNames(as.list(outcome),clinical$patientId)
-# Actual Outcomes
-predictions_cell$actual <- named_outcomes
-predictions_cell$actual <- unlist(predictions_cell$actual)
-# Generate the confusion matrix
-confusion_matrix_cell <- table(Predicted = predictions_cell$class, Actual = predictions_cell$actual)
-print(confusion_matrix_cell)
-
-TP <- diag(confusion_matrix_cell)
-FN <- rowSums(confusion_matrix_cell) - TP
-FP <- colSums(confusion_matrix_cell) - TP
-TN <- sum(confusion_matrix_cell) - (TP + FP + FN)
-# Performance Metrics
-sensitivity <- TP / (TP + FN) # Recall or Sensitivity
-specificity <- TN / (TN + FP) # Specificity
-precision <- TP / (TP + FP)   # Precision'accuracy <- sum(TP) / sum(confusion_matrix_cell_forest)
-accuracy <- sum(TP) / sum(confusion_matrix_cell)
-f1_score <- 2 * (precision * sensitivity) / (precision + sensitivity)
-cat("Metrics for predictions from cell-specific pseudobulking:\n")
-cat("Accuracy:", accuracy, "\n")
-cat("Sensitivity (Recall) per class:", sensitivity, "\n")
-cat("Specificity per class:", specificity, "\n")
-cat("Precision per class:", precision, "\n")
-cat("F1 Score per class:", f1_score, "\n")
-
-
-# Extract predictions
-predictions_cell_forest <- predictions(classifyr_result_cell_forest)
-predictions_cell_forest$actual <- named_outcomes #actual outcome
-predictions_cell_forest$actual <- unlist(predictions_cell_forest$actual)
-# Generate the confusion matrix
-confusion_matrix_cell_forest <- table(Predicted = predictions_cell_forest$class, Actual = predictions_cell_forest$actual)
-# View the confusion matrix
-print(confusion_matrix_cell_forest)
-
-# Total True Positives (TP), True Negatives (TN), False Positives (FP), False Negatives (FN)
-TP <- diag(confusion_matrix_cell_forest)
-FN <- rowSums(confusion_matrix_cell_forest) - TP
-FP <- colSums(confusion_matrix_cell_forest) - TP
-TN <- sum(confusion_matrix_cell_forest) - (TP + FP + FN)
-
-# Calculating metrics for each class
-sensitivity <- TP / (TP + FN) # Recall or Sensitivity
-specificity <- TN / (TN + FP) # Specificity
-precision <- TP / (TP + FP)   # Precision
-accuracy <- sum(TP) / sum(confusion_matrix_cell_forest)
-f1_score <- 2 * (precision * sensitivity) / (precision + sensitivity)
-
-cat("Metrics for predictions from cell-specific pseudobulking using random forest:\n")
-cat("Accuracy:", accuracy, "\n")
-cat("Sensitivity (Recall) per class:", sensitivity, "\n")
-cat("Specificity per class:", specificity, "\n")
-cat("Precision per class:", precision, "\n")
-cat("F1 Score per class:", f1_score, "\n")
-```
-<<<<<<< HEAD
-=======
 
 
 # Code Dump
@@ -419,6 +185,3 @@ legend(
   lwd = 2
 )
 ```
-
-
->>>>>>> 1fc3bd9 (scatterplot shortened)
