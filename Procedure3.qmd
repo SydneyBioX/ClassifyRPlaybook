@@ -7,3 +7,9 @@ text
 ## Next thing
 
 more text
+
+```{r}
+MultiAssayExperiment <- readRDS("data/procedure3/MultiAssayExperiment.rds")
+
+```
+
