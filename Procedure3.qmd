@@ -12,10 +12,6 @@ more text
 set.seed(1)
 library(ClassifyR)
 mae <- readRDS("data/procedure3/MultiAssayExperiment.rds")
-colData(mae)$Outcome <- factor(colData(mae)$Outcome)
-#TCGA <- experiments(MultiAssayExperiment)[[1]]
-#kMIA <- experiments(MultiAssayExperiment)[[2]]
-
 pp <- precisionPathwaysTrain(mae, "Outcome")
 pp <- calcCostsAndPerformance(pp, setNames(c(100, 500), c("microRNA", "longRNA")))
 summary(pp)
@@ -25,41 +21,3 @@ flowchart(pp, "clinical-miRNA_pair-RNA_pair")
 predictions <- precisionPathwaysPredict(pp, mae, "Outcome")
 predictions$pathways
 ```
-
-```{r}
-load("data/procedure3/melanomaAssaysNorm.RData")
-set.seed(567890)
-ppt <- precisionPathwaysTrain(melanomaAssaysNorm[, , c("microRNA", "longRNA")], "class1vs4years", list(clinical = c("Person_StageatBank", "Tum_MetSize")))
-ppt <- calcCostsAndPerformance(ppt, setNames(c(100, 500), c("microRNA", "longRNA")))
-summary(ppt)
-bubblePlot(ppt)
-strataPlot(ppt, "clinical-microRNA")
-flowchart(ppt, "clinical-microRNA")
-precisionPathwaysPredict(ppt, melanomaAssaysNorm, "Outcome")
-```
-
-
-
-# My Own Cleaning
-```{r}
-new_exp_list <- lapply(experiments(mae), function(exp) {
-  # Update column names to the first 12 characters
-  colnames(exp) <- substr(colnames(exp), 1, 12)
-  return(exp)
-})
-
-# Extract the current sampleMap
-new_sample_map <- sampleMap(mae)
-
-# Update the sampleMap to match the new column names
-new_sample_map$colname <- substr(new_sample_map$colname, 1, 12)
-
-# Create a new MultiAssayExperiment with updated components
-mae <- MultiAssayExperiment(
-  experiments = ExperimentList(new_exp_list),
-  colData = colData(mae),
-  sampleMap = new_sample_map
-)
-
-```
-
