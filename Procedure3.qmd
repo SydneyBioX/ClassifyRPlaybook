@@ -10,14 +10,14 @@ more text
 
 ```{r}
 set.seed(1)
-library(ClassifyR)
+suppressPackageStartupMessages(library(ClassifyR))
 mae <- readRDS("data/procedure3/MultiAssayExperiment.rds")
 pp <- precisionPathwaysTrain(mae, "Outcome")
-pp <- calcCostsAndPerformance(pp, setNames(c(100, 500), c("microRNA", "longRNA")))
+pp <- calcCostsAndPerformance(pp, setNames(c(30, 100, 50), c("Clinical", "RNA_pair", "miRNA_pair")))
 summary(pp)
 bubblePlot(pp)
-strataPlot(pp, "clinical-miRNA_pair-RNA_pair")
-flowchart(pp, "clinical-miRNA_pair-RNA_pair")
+strataPlot(pp, "clinical-RNA_pair")
+flowchart(pp, "clinical-RNA_pair")
 predictions <- precisionPathwaysPredict(pp, mae, "Outcome")
 predictions$pathways
 ```
