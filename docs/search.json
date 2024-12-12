@@ -144,7 +144,7 @@
     "href": "Procedure1.html#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test",
     "title": "2  Procedure 1",
     "section": "2.3 Final Procedure using SCM Classifier with 5% of features selected from t-test",
-    "text": "2.3 Final Procedure using SCM Classifier with 5% of features selected from t-test\n\nset.seed(1)\nclinical = read.xlsx(\"data/procedure1/clinical.xlsx\")\nclusters &lt;- readRDS(\"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds\")\np &lt;- readRDS(\"data/procedure1/pseudobulk_overall_sum.rds\")\np &lt;- p[rownames(p) %in% clusters$sample_id, ]\np_cell &lt;- readRDS(\"data/procedure1/pseudobulk_celltype_sum.rds\")\np_cell &lt;- p_cell[rownames(p_cell) %in% clusters$sample_id, ]\ndata = list(\"pseudo_bulk_overall\" = p, \"pseudo_bulk_cell\" = p_cell)\nnFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))\noutcome = as.factor(clusters$cluster)\n\nclassifyr_result3 &lt;- crossValidate(data, outcome = outcome, classifier = \"SVM\", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)\nperformancePlot(classifyr_result3)\nsamplesMetricMap(classifyr_result3)\n\n\n\n\n\n\n\n\nTableGrob (2 x 1) \"arrange\": 2 grobs\n  z     cells    name                grob\n1 1 (2-2,1-1) arrange      gtable[layout]\n2 2 (1-1,1-1) arrange text[GRID.text.276]\n\nclassifyr_result3 &lt;- sapply(classifyr_result3, function(results) {\n  calcCVperformance(results, performanceType = \"Sample Accuracy\")\n}) # loop to calculate sample accuracy\naccuracyMatrix &lt;- sapply(classifyr_result3, function(result) performance(result)[[\"Sample Accuracy\"]])\nplot(accuracyMatrix) #scatterplot of sample accuracies for both datasets",
+    "text": "2.3 Final Procedure using SCM Classifier with 5% of features selected from t-test\n\nset.seed(1)\nclinical = read.xlsx(\"data/procedure1/clinical.xlsx\")\nclusters &lt;- readRDS(\"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds\")\np &lt;- readRDS(\"data/procedure1/pseudobulk_overall_sum.rds\")\np &lt;- p[rownames(p) %in% clusters$sample_id, ]\np_cell &lt;- readRDS(\"data/procedure1/pseudobulk_celltype_sum.rds\")\np_cell &lt;- p_cell[rownames(p_cell) %in% clusters$sample_id, ]\ndata = list(\"pseudo_bulk_overall\" = p, \"pseudo_bulk_cell\" = p_cell)\nnFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))\noutcome = as.factor(clusters$cluster)\n\nclassifyr_result3 &lt;- crossValidate(data, outcome = outcome, classifier = \"SVM\", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)\nperformancePlot(classifyr_result3)\nsamplesMetricMap(classifyr_result3)\n\n\n\n\n\n\n\n\nTableGrob (2 x 1) \"arrange\": 2 grobs\n  z     cells    name                grob\n1 1 (2-2,1-1) arrange      gtable[layout]\n2 2 (1-1,1-1) arrange text[GRID.text.274]\n\nclassifyr_result3 &lt;- sapply(classifyr_result3, function(results) {\n  calcCVperformance(results, performanceType = \"Sample Accuracy\")\n}) # loop to calculate sample accuracy\naccuracyMatrix &lt;- sapply(classifyr_result3, function(result) performance(result)[[\"Sample Accuracy\"]])\nplot(accuracyMatrix) #scatterplot of sample accuracies for both datasets",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]
@@ -155,6 +155,16 @@
     "title": "2  Procedure 1",
     "section": "3.1 Everything below is verbose non-ClassifyR Code (Left in for comparison)",
     "text": "3.1 Everything below is verbose non-ClassifyR Code (Left in for comparison)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#set-up-the-environment-and-data-objects",
+    "href": "Procedure1.html#set-up-the-environment-and-data-objects",
+    "title": "2  Procedure 1",
+    "section": "2.2 Set up the environment and data objects",
+    "text": "2.2 Set up the environment and data objects\n\nlibrary(ClassifyR)\nlibrary(openxlsx)",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]

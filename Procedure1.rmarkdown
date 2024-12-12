@@ -6,9 +6,10 @@ text
 
 ## Set up the environment and data objects
 
-Timing \~ 8.12s
+Timing \~ 0.95s
 
 1.  Load the R packages into the R environment:
+
 
 ```{r message = FALSE}
 start_time <- Sys.time()
@@ -17,7 +18,9 @@ library(ClassifyR)
 library(openxlsx)
 ```
 
+
 2.  Import datasets
+
 
 ```{r}
 clinical = read.xlsx("data/procedure1/clinical.xlsx")
@@ -33,9 +36,11 @@ execution_time <- end_time - start_time
 print(execution_time)
 ```
 
+
 The first command reads in clinical data for 92 patients with breast cancer, and shows 44 features including patient id.
 
 ## Final Procedure using SCM Classifier with 5% of features selected from t-test
+
 
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
@@ -53,4 +58,6 @@ accuracyMatrix <- sapply(classifyr_result3, function(result) performance(result)
 plot(accuracyMatrix) #scatterplot of sample accuracies for both datasets
 ```
 
+
 The 'set.seed(1)' function ensures that any subsequent operations involving randomness yield consistent results across runs.
+
