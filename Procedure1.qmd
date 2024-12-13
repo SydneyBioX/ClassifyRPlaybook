@@ -2,55 +2,94 @@
 
 ## Intro
 
-text
+Procedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70. 
+
+For this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are 'cluster 1' and 'cluster 2', found by unsupervised machine learning. Cluster 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Cluster 2 is the opposite, associated with poorer survival. More details on the clusters can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.
 
 ## Set up the environment and data objects
 
-Timing \~ 8.12s
+**1. Load the R packages into the R environment:**
 
-1.  Load the R packages into the R environment:
+[Timing \~ 6.5s]{style="color: grey;"}
 
 ```{r message = FALSE}
-start_time <- Sys.time()
-
 library(ClassifyR)
 library(openxlsx)
 ```
 
-2.  Import datasets
+**2. Import datasets**
+
+[Timing \~ 0.15s]{style="color: grey;"}
 
 ```{r}
-clinical = read.xlsx("data/procedure1/clinical.xlsx")
-clusters <- readRDS("data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds")
 p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds")
-p <- p[rownames(p) %in% clusters$sample_id, ]
 p_cell <- readRDS("data/procedure1/pseudobulk_celltype_sum.rds")
-p_cell <- p_cell[rownames(p_cell) %in% clusters$sample_id, ]
 data = list("pseudo_bulk_overall" = p, "pseudo_bulk_cell" = p_cell)
-
-end_time <- Sys.time()
-execution_time <- end_time - start_time
-print(execution_time)
+clusters <- readRDS("data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds")
 ```
 
-The first command reads in clinical data for 92 patients with breast cancer, and shows 44 features including patient id.
+The first and second command respectively read in the bulked and pseudobulked transcriptomic datasets for the 54 individuals.
 
-## Final Procedure using SCM Classifier with 5% of features selected from t-test
+Both datasets are combined into a list structure for downstream analysis.
+
+The final command reads in the clustering outcome to be predicted.
+
+## Cross-validated Classification
+
+**3. Classifying patients into clusters**
+
+[Timing \~ 17.0s]{style="color: grey;"}
 
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
 nFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))
-outcome = as.factor(clusters$cluster)
+classifyr_result3 <- crossValidate(data, outcome = clusters$cluster, classifier = "SVM", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)
+```
 
-classifyr_result3 <- crossValidate(data, outcome = outcome, classifier = "SVM", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)
-performancePlot(classifyr_result3)
-samplesMetricMap(classifyr_result3)
+The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
 
+The second command defines the number of features to be selected. Here, it is set to 5% of the available features in each dataset.
+
+The final command uses the `crossValidate` function to perform 5-fold cross-validation with the SVM classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.\
+\
+
+## Classification Evaluation
+
+**4. Classification Accuracy**
+
+[Timing \~ 0.21s]{style="color: grey;"}
+
+```{r}
 classifyr_result3 <- sapply(classifyr_result3, function(results) {
   calcCVperformance(results, performanceType = "Sample Accuracy")
 }) # loop to calculate sample accuracy
 accuracyMatrix <- sapply(classifyr_result3, function(result) performance(result)[["Sample Accuracy"]])
+```
+
+The first function uses `calcCVperfomance` to calculate the classification sample accuracy for both datasets.
+
+The second function uses `performance` to output a matrix of sample accuracies. 
+
+**5. Classification Performance Visualisation**
+
+[Timing \~ 1.7s]{style="color: grey;"}
+
+```{r warning = FALSE}
+performancePlot(classifyr_result3)
+```
+
+`performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.\
+Both methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.
+
+```{r warning = FALSE}
+samplesMetricMap(classifyr_result3)
+```
+
+`samplesMetricMap` outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample.
+A greater proportion of samples show high sample accuracies (0.8,1] when classified by the bulked data as opposed to the pseudobulked data. 
+
+```{r}
 plot(accuracyMatrix) #scatterplot of sample accuracies for both datasets
 ```
 
-The 'set.seed(1)' function ensures that any subsequent operations involving randomness yield consistent results across runs.
+The final command outputs a scatterplot to show the prediction accuracy of each sample in each dataset.\
