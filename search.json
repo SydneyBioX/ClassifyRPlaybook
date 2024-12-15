@@ -34,17 +34,37 @@
     "href": "Procedure1.html",
     "title": "2  Procedure 1",
     "section": "",
-    "text": "2.1 Intro\ntext",
+    "text": "2.1 Intro\nProcedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.\nFor this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are ‘cluster 1’ and ‘cluster 2’, found by unsupervised machine learning. Cluster 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Cluster 2 is the opposite, associated with poorer survival. More details on the clusters can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]
   },
   {
-    "objectID": "Procedure1.html#next-thing",
-    "href": "Procedure1.html#next-thing",
+    "objectID": "Procedure1.html#set-up-the-environment-and-data-objects",
+    "href": "Procedure1.html#set-up-the-environment-and-data-objects",
     "title": "2  Procedure 1",
-    "section": "2.2 Next thing",
-    "text": "2.2 Next thing\nmore text",
+    "section": "2.2 Set up the environment and data objects",
+    "text": "2.2 Set up the environment and data objects\n1. Load the R packages into the R environment:\nTiming ~ 6.5s\n\nlibrary(ClassifyR)\nlibrary(openxlsx)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#cross-validated-classification",
+    "href": "Procedure1.html#cross-validated-classification",
+    "title": "2  Procedure 1",
+    "section": "3.1 Cross-validated Classification",
+    "text": "3.1 Cross-validated Classification\n3. Classifying patients into clusters\nTiming ~ 17.0s\n\nset.seed(1)\nnFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))\nclassifyr_result3 &lt;- crossValidate(data, outcome = clusters$cluster, classifier = \"SVM\", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)\n\nThe set.seed(1) command ensures that any subsequent operations involving randomness yield consistent results across runs.\nThe second command defines the number of features to be selected. Here, it is set to 5% of the available features in each dataset.\nThe final command uses the crossValidate function to perform 5-fold cross-validation with the SVM classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#classification-evaluation",
+    "href": "Procedure1.html#classification-evaluation",
+    "title": "2  Procedure 1",
+    "section": "3.2 Classification Evaluation",
+    "text": "3.2 Classification Evaluation\n4. Classification Accuracy\nTiming ~ 0.21s\n\nclassifyr_result3 &lt;- sapply(classifyr_result3, function(results) {\n  calcCVperformance(results, performanceType = \"Sample Accuracy\")\n}) # loop to calculate sample accuracy\naccuracyMatrix &lt;- sapply(classifyr_result3, function(result) performance(result)[[\"Sample Accuracy\"]])\n\nThe first function uses calcCVperfomance to calculate the classification sample accuracy for both datasets.\nThe second function uses performance to output a matrix of sample accuracies.\n5. Classification Performance Visualisation\nTiming ~ 1.7s\n\nperformancePlot(classifyr_result3)\n\n\n\n\n\n\n\n\nperformancePlot outputs a side-by-side boxplot of the balanced accuracies for each dataset.\nBoth methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.\n\nsamplesMetricMap(classifyr_result3)\n\n\n\n\n\n\n\n\nTableGrob (2 x 1) \"arrange\": 2 grobs\n  z     cells    name                grob\n1 1 (2-2,1-1) arrange      gtable[layout]\n2 2 (1-1,1-1) arrange text[GRID.text.276]\n\n\nsamplesMetricMap outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the bulked data as opposed to the pseudobulked data.\n\nplot(accuracyMatrix) #scatterplot of sample accuracies for both datasets\n\n\n\n\n\n\n\n\nThe final command outputs a scatterplot to show the prediction accuracy of each sample in each dataset.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]
@@ -84,7 +104,7 @@
     "href": "Procedure3.html#next-thing",
     "title": "4  Procedure 3",
     "section": "4.2 Next thing",
-    "text": "4.2 Next thing\nmore text",
+    "text": "4.2 Next thing\nmore text\n\nset.seed(1)\nsuppressPackageStartupMessages(library(ClassifyR))\n# mae &lt;- readRDS(\"data/procedure3/MultiAssayExperiment.rds\")\n# pp &lt;- precisionPathwaysTrain(mae, \"Outcome\")\n# pp &lt;- calcCostsAndPerformance(pp, setNames(c(30, 100, 50), c(\"Clinical\", \"RNA_pair\", \"miRNA_pair\")))\n# summary(pp)\n# bubblePlot(pp)\n# strataPlot(pp, \"clinical-RNA_pair\")\n# flowchart(pp, \"clinical-RNA_pair\")\n# predictions &lt;- precisionPathwaysPredict(pp, mae, \"Outcome\")\n# predictions$pathways",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>Procedure 3</span>"
     ]
@@ -94,7 +114,17 @@
     "href": "Procedure4.html",
     "title": "5  Procedure 4",
     "section": "",
-    "text": "5.1 Intro\ntext",
+    "text": "5.1 Intro",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Procedure 4</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure4.html#intro",
+    "href": "Procedure4.html#intro",
+    "title": "5  Procedure 4",
+    "section": "",
+    "text": "5.1.1 Criss-cross validate\nLet’s suppose you want to assess how biomarkers selected from one population relate to another. In typical fashion you may build a model on one dataset through some cross-validation strategy and then attempt to predict the outcome of the paitent population in teh other cohort. This is of course rather procedural. Hence, criss-cross validate. A technique that performs a cross validation model building procedure on one dataset or group of patients and then applies this model to the other datasets you have collected. This procedure is repeated for n datasets.\nWe will use the recently published PROMAD database as a quick and easy way to collect",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Procedure 4</span>"
     ]
@@ -104,7 +134,7 @@
     "href": "Procedure4.html#next-thing",
     "title": "5  Procedure 4",
     "section": "5.2 Next thing",
-    "text": "5.2 Next thing\nmore text",
+    "text": "5.2 Next thing\n\nlibrary(ClassifyR)\n\nLoading required package: generics\n\n\n\nAttaching package: 'generics'\n\n\nThe following objects are masked from 'package:base':\n\n    as.difftime, as.factor, as.ordered, intersect, is.element, setdiff,\n    setequal, union\n\n\nLoading required package: S4Vectors\n\n\nLoading required package: stats4\n\n\nLoading required package: BiocGenerics\n\n\n\nAttaching package: 'BiocGenerics'\n\n\nThe following objects are masked from 'package:generics':\n\n    intersect, setdiff, union\n\n\nThe following objects are masked from 'package:stats':\n\n    IQR, mad, sd, var, xtabs\n\n\nThe following objects are masked from 'package:base':\n\n    anyDuplicated, aperm, append, as.data.frame, basename, cbind,\n    colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,\n    get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,\n    match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,\n    Position, rank, rbind, Reduce, rownames, sapply, saveRDS, setdiff,\n    table, tapply, union, unique, unsplit, which.max, which.min\n\n\n\nAttaching package: 'S4Vectors'\n\n\nThe following object is masked from 'package:utils':\n\n    findMatches\n\n\nThe following objects are masked from 'package:base':\n\n    expand.grid, I, unname\n\n\nLoading required package: MultiAssayExperiment\n\n\nLoading required package: SummarizedExperiment\n\n\nLoading required package: MatrixGenerics\n\n\nLoading required package: matrixStats\n\n\n\nAttaching package: 'MatrixGenerics'\n\n\nThe following objects are masked from 'package:matrixStats':\n\n    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,\n    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,\n    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,\n    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,\n    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,\n    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,\n    colWeightedMeans, colWeightedMedians, colWeightedSds,\n    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,\n    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,\n    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,\n    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,\n    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,\n    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,\n    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,\n    rowWeightedSds, rowWeightedVars\n\n\nLoading required package: GenomicRanges\n\n\nLoading required package: IRanges\n\n\n\nAttaching package: 'IRanges'\n\n\nThe following object is masked from 'package:grDevices':\n\n    windows\n\n\nLoading required package: GenomeInfoDb\n\n\nLoading required package: Biobase\n\n\nWelcome to Bioconductor\n\n    Vignettes contain introductory material; view with\n    'browseVignettes()'. To cite Bioconductor, see\n    'citation(\"Biobase\")', and for packages 'citation(\"pkgname\")'.\n\n\n\nAttaching package: 'Biobase'\n\n\nThe following object is masked from 'package:MatrixGenerics':\n\n    rowMedians\n\n\nThe following objects are masked from 'package:matrixStats':\n\n    anyMissing, rowMedians\n\n\nLoading required package: BiocParallel\n\n\nLoading required package: survival\n\n\n\nAttaching package: 'ClassifyR'\n\n\nThe following object is masked from 'package:Biobase':\n\n    sampleNames\n\npromad_data &lt;- readRDS(\"data/procedure4/PROMAD_sample.Rds\")\nccv = crissCrossValidate(measurements = promad_data$measurements, \n                         outcome = promad_data$outcome,\n                         classifier = \"SVM\",\n                         nCores = 4)\n\nWarning in .local(measurements, ...): Unsafe feature names in input data.\nConverted into safe names.\nWarning in .local(measurements, ...): Unsafe feature names in input data.\nConverted into safe names.\nWarning in .local(measurements, ...): Unsafe feature names in input data.\nConverted into safe names.\nWarning in .local(measurements, ...): Unsafe feature names in input data.\nConverted into safe names.\n\ncrissCrossPlot(ccv)\n\n\n\n\n\n\n\nlibrary(TOP)\nData_temp = lapply(promad_data$measurements, \"[\", , TOP::filterFeatures(x_list = promad_data$measurements, \n                                                        y_list = promad_data$outcome, \n                                                        contrast = \"AR - Control\", \n                                                        nFeatures = 50))\n\nWarning in merge.data.frame(x, y, by = \"gene\", all = TRUE, no.dups = TRUE):\ncolumn names 't.x', 't.y' are duplicated in the result\n\ntopModel &lt;- TOP::TOP_model(x_list = Data_temp, y_list = promad_data$outcome)\n\nCalculating Pairwise Ratios of Features\n\n\nCalculating Fold Changes of Pairwise Ratios\n\n\nCalculating Final Weights\n\n\nFitting final lasso model\n\n\nmore text",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>Procedure 4</span>"
     ]
