@@ -19,8 +19,8 @@ library(ggplot2)
 library(reshape2)
 ```
 
-
 ## Final Procedure using SCM Classifier with 5% of features selected from t-test
+
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
 clinical = read.xlsx("data/procedure1/clinical.xlsx")
