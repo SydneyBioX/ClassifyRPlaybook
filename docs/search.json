@@ -34,7 +34,7 @@
     "href": "Procedure1.html",
     "title": "2  Procedure 1",
     "section": "",
-    "text": "2.1 Intro\ntext",
+    "text": "2.1 Intro\nProcedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.\nFor this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are ‘cluster 1’ and ‘cluster 2’, found by unsupervised machine learning. Cluster 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Cluster 2 is the opposite, associated with poorer survival. More details on the clusters can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]
@@ -144,7 +144,7 @@
     "href": "Procedure1.html#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test",
     "title": "2  Procedure 1",
     "section": "2.3 Final Procedure using SCM Classifier with 5% of features selected from t-test",
-    "text": "2.3 Final Procedure using SCM Classifier with 5% of features selected from t-test\n\nset.seed(1)\nclinical = read.xlsx(\"data/procedure1/clinical.xlsx\")\nclusters &lt;- readRDS(\"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds\")\np &lt;- readRDS(\"data/procedure1/pseudobulk_overall_sum.rds\")\np &lt;- p[rownames(p) %in% clusters$sample_id, ]\np_cell &lt;- readRDS(\"data/procedure1/pseudobulk_celltype_sum.rds\")\np_cell &lt;- p_cell[rownames(p_cell) %in% clusters$sample_id, ]\ndata = list(\"pseudo_bulk_overall\" = p, \"pseudo_bulk_cell\" = p_cell)\nnFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))\noutcome = as.factor(clusters$cluster)\n\nclassifyr_result3 &lt;- crossValidate(data, outcome = outcome, classifier = \"SVM\", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)\nperformancePlot(classifyr_result3)\nsamplesMetricMap(classifyr_result3)\n\n\n\n\n\n\n\n\nTableGrob (2 x 1) \"arrange\": 2 grobs\n  z     cells    name                grob\n1 1 (2-2,1-1) arrange      gtable[layout]\n2 2 (1-1,1-1) arrange text[GRID.text.276]\n\nclassifyr_result3 &lt;- sapply(classifyr_result3, function(results) {\n  calcCVperformance(results, performanceType = \"Sample Accuracy\")\n}) # loop to calculate sample accuracy\naccuracyMatrix &lt;- sapply(classifyr_result3, function(result) performance(result)[[\"Sample Accuracy\"]])\nplot(accuracyMatrix) #scatterplot of sample accuracies for both datasets",
+    "text": "2.3 Final Procedure using SCM Classifier with 5% of features selected from t-test\n\nset.seed(1)\nclinical = read.xlsx(\"data/procedure1/clinical.xlsx\")\nclusters &lt;- readRDS(\"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds\")\np &lt;- readRDS(\"data/procedure1/pseudobulk_overall_sum.rds\")\np &lt;- p[rownames(p) %in% clusters$sample_id, ]\np_cell &lt;- readRDS(\"data/procedure1/pseudobulk_celltype_sum.rds\")\np_cell &lt;- p_cell[rownames(p_cell) %in% clusters$sample_id, ]\ndata = list(\"pseudo_bulk_overall\" = p, \"pseudo_bulk_cell\" = p_cell)\nnFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))\noutcome = as.factor(clusters$cluster)\n\nclassifyr_result3 &lt;- crossValidate(data, outcome = outcome, classifier = \"SVM\", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)\nperformancePlot(classifyr_result3)\nsamplesMetricMap(classifyr_result3)\n\n\n\n\n\n\n\n\nTableGrob (2 x 1) \"arrange\": 2 grobs\n  z     cells    name                grob\n1 1 (2-2,1-1) arrange      gtable[layout]\n2 2 (1-1,1-1) arrange text[GRID.text.274]\n\nclassifyr_result3 &lt;- sapply(classifyr_result3, function(results) {\n  calcCVperformance(results, performanceType = \"Sample Accuracy\")\n}) # loop to calculate sample accuracy\naccuracyMatrix &lt;- sapply(classifyr_result3, function(result) performance(result)[[\"Sample Accuracy\"]])\nplot(accuracyMatrix) #scatterplot of sample accuracies for both datasets",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]
@@ -155,6 +155,36 @@
     "title": "2  Procedure 1",
     "section": "3.1 Everything below is verbose non-ClassifyR Code (Left in for comparison)",
     "text": "3.1 Everything below is verbose non-ClassifyR Code (Left in for comparison)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#set-up-the-environment-and-data-objects",
+    "href": "Procedure1.html#set-up-the-environment-and-data-objects",
+    "title": "2  Procedure 1",
+    "section": "2.2 Set up the environment and data objects",
+    "text": "2.2 Set up the environment and data objects\n1. Load the R packages into the R environment:\nTiming ~ 6.5s\n\nlibrary(ClassifyR)\nlibrary(openxlsx)\n\n2. Import datasets\nTiming ~ 0.15s\n\np &lt;- readRDS(\"data/procedure1/pseudobulk_overall_sum.rds\")\np_cell &lt;- readRDS(\"data/procedure1/pseudobulk_celltype_sum.rds\")\ndata = list(\"pseudo_bulk_overall\" = p, \"pseudo_bulk_cell\" = p_cell)\nclusters &lt;- readRDS(\"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds\")\n\nThe first and second command respectively read in the bulked and pseudobulked transcriptomic datasets for the 54 individuals.\nBoth datasets are combined into a list structure for downstream analysis.\nThe final command reads in the clustering outcome to be predicted.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#cross-validated-classification",
+    "href": "Procedure1.html#cross-validated-classification",
+    "title": "2  Procedure 1",
+    "section": "2.3 Cross-validated Classification",
+    "text": "2.3 Cross-validated Classification\n3. Classifying patients into clusters\nTiming ~ 17.0s\n\nset.seed(1)\nnFeatures = list(pseudo_bulk_overall = 0.05*ncol(p), pseudo_bulk_cell = 0.05*ncol(p_cell))\nclassifyr_result3 &lt;- crossValidate(data, outcome = clusters$cluster, classifier = \"SVM\", nFeatures = nFeatures, nFolds = 5, nRepeats = 100, nCores = 5)\n\nThe set.seed(1) command ensures that any subsequent operations involving randomness yield consistent results across runs.\nThe second command defines the number of features to be selected. Here, it is set to 5% of the available features in each dataset.\nThe final command uses the crossValidate function to perform 5-fold cross-validation with the SVM classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
+    ]
+  },
+  {
+    "objectID": "Procedure1.html#classification-evaluation",
+    "href": "Procedure1.html#classification-evaluation",
+    "title": "2  Procedure 1",
+    "section": "2.4 Classification Evaluation",
+    "text": "2.4 Classification Evaluation\n4. Classification Accuracy\nTiming ~ 0.21s\n\nclassifyr_result3 &lt;- sapply(classifyr_result3, function(results) {\n  calcCVperformance(results, performanceType = \"Sample Accuracy\")\n}) # loop to calculate sample accuracy\naccuracyMatrix &lt;- sapply(classifyr_result3, function(result) performance(result)[[\"Sample Accuracy\"]])\n\nThe first function uses calcCVperfomance to calculate the classification sample accuracy for both datasets.\nThe second function uses performance to output a matrix of sample accuracies.\n5. Classification Performance Visualisation\nTiming ~ 1.7s\n\nperformancePlot(classifyr_result3)\n\n\n\n\n\n\n\n\nperformancePlot outputs a side-by-side boxplot of the balanced accuracies for each dataset.\nBoth methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.\n\nsamplesMetricMap(classifyr_result3)\n\n\n\n\n\n\n\n\nTableGrob (2 x 1) \"arrange\": 2 grobs\n  z     cells    name                grob\n1 1 (2-2,1-1) arrange      gtable[layout]\n2 2 (1-1,1-1) arrange text[GRID.text.276]\n\n\nsamplesMetricMap outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the bulked data as opposed to the pseudobulked data.\n\nplot(accuracyMatrix) #scatterplot of sample accuracies for both datasets\n\n\n\n\n\n\n\n\nThe final command outputs a scatterplot to show the prediction accuracy of each sample in each dataset.",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>Procedure 1</span>"
     ]

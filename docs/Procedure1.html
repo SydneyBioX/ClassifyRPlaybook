@@ -192,9 +192,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro"><span class="header-section-number">2.1</span> Intro</a></li>
-  <li><a href="#next-thing" id="toc-next-thing" class="nav-link" data-scroll-target="#next-thing"><span class="header-section-number">2.2</span> Next thing</a></li>
-  <li><a href="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" id="toc-final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" class="nav-link" data-scroll-target="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test"><span class="header-section-number">2.3</span> Final Procedure using SCM Classifier with 5% of features selected from t-test</a></li>
-  <li><a href="#classifier-selection-plot" id="toc-classifier-selection-plot" class="nav-link" data-scroll-target="#classifier-selection-plot"><span class="header-section-number">3</span> Classifier Selection Plot</a></li>
+  <li><a href="#set-up-the-environment-and-data-objects" id="toc-set-up-the-environment-and-data-objects" class="nav-link" data-scroll-target="#set-up-the-environment-and-data-objects"><span class="header-section-number">2.2</span> Set up the environment and data objects</a></li>
+  <li><a href="#cross-validated-classification" id="toc-cross-validated-classification" class="nav-link" data-scroll-target="#cross-validated-classification"><span class="header-section-number">2.3</span> Cross-validated Classification</a></li>
+  <li><a href="#classification-evaluation" id="toc-classification-evaluation" class="nav-link" data-scroll-target="#classification-evaluation"><span class="header-section-number">2.4</span> Classification Evaluation</a></li>
   </ul>
 </nav>
     </div>
@@ -222,43 +222,76 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="intro" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="intro"><span class="header-section-number">2.1</span> Intro</h2>
-<p>text</p>
+<p>Procedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.</p>
+<p>For this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are ‘cluster 1’ and ‘cluster 2’, found by unsupervised machine learning. Cluster 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Cluster 2 is the opposite, associated with poorer survival. More details on the clusters can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.</p>
 </section>
-<section id="next-thing" class="level2" data-number="2.2">
-<h2 data-number="2.2" class="anchored" data-anchor-id="next-thing"><span class="header-section-number">2.2</span> Next thing</h2>
-<p>more text</p>
+<section id="set-up-the-environment-and-data-objects" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="set-up-the-environment-and-data-objects"><span class="header-section-number">2.2</span> Set up the environment and data objects</h2>
+<p><strong>1. Load the R packages into the R environment:</strong></p>
+<p><span style="color: grey;">Timing ~ 6.5s</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sparsediscrim)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SingleCellExperiment)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(pROC)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" class="level2" data-number="2.3">
-<h2 data-number="2.3" class="anchored" data-anchor-id="final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test"><span class="header-section-number">2.3</span> Final Procedure using SCM Classifier with 5% of features selected from t-test</h2>
+<p><strong>2. Import datasets</strong></p>
+<p><span style="color: grey;">Timing ~ 0.15s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>clinical <span class="ot">=</span> <span class="fu">read.xlsx</span>(<span class="st">"data/procedure1/clinical.xlsx"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds"</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_overall_sum.rds"</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> p[<span class="fu">rownames</span>(p) <span class="sc">%in%</span> clusters<span class="sc">$</span>sample_id, ]</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_celltype_sum.rds"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> p_cell[<span class="fu">rownames</span>(p_cell) <span class="sc">%in%</span> clusters<span class="sc">$</span>sample_id, ]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"pseudo_bulk_overall"</span> <span class="ot">=</span> p, <span class="st">"pseudo_bulk_cell"</span> <span class="ot">=</span> p_cell)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>nFeatures <span class="ot">=</span> <span class="fu">list</span>(<span class="at">pseudo_bulk_overall =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p), <span class="at">pseudo_bulk_cell =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p_cell))</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>outcome <span class="ot">=</span> <span class="fu">as.factor</span>(clusters<span class="sc">$</span>cluster)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(data, <span class="at">outcome =</span> outcome, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFeatures =</span> nFeatures, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result3)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_overall_sum.rds"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_celltype_sum.rds"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"pseudo_bulk_overall"</span> <span class="ot">=</span> p, <span class="st">"pseudo_bulk_cell"</span> <span class="ot">=</span> p_cell)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The first and second command respectively read in the bulked and pseudobulked transcriptomic datasets for the 54 individuals.</p>
+<p>Both datasets are combined into a list structure for downstream analysis.</p>
+<p>The final command reads in the clustering outcome to be predicted.</p>
+</section>
+<section id="cross-validated-classification" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="cross-validated-classification"><span class="header-section-number">2.3</span> Cross-validated Classification</h2>
+<p><strong>3. Classifying patients into clusters</strong></p>
+<p><span style="color: grey;">Timing ~ 17.0s</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nFeatures <span class="ot">=</span> <span class="fu">list</span>(<span class="at">pseudo_bulk_overall =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p), <span class="at">pseudo_bulk_cell =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p_cell))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(data, <span class="at">outcome =</span> clusters<span class="sc">$</span>cluster, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFeatures =</span> nFeatures, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>set.seed(1)</code> command ensures that any subsequent operations involving randomness yield consistent results across runs.</p>
+<p>The second command defines the number of features to be selected. Here, it is set to 5% of the available features in each dataset.</p>
+<p>The final command uses the <code>crossValidate</code> function to perform 5-fold cross-validation with the SVM classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.<br>
+<br>
+</p>
+</section>
+<section id="classification-evaluation" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="classification-evaluation"><span class="header-section-number">2.4</span> Classification Evaluation</h2>
+<p><strong>4. Classification Accuracy</strong></p>
+<p><span style="color: grey;">Timing ~ 0.21s</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(results) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Sample Accuracy"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}) <span class="co"># loop to calculate sample accuracy</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>accuracyMatrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(result) <span class="fu">performance</span>(result)[[<span class="st">"Sample Accuracy"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The first function uses <code>calcCVperfomance</code> to calculate the classification sample accuracy for both datasets.</p>
+<p>The second function uses <code>performance</code> to output a matrix of sample accuracies.</p>
+<p><strong>5. Classification Performance Visualisation</strong></p>
+<p><span style="color: grey;">Timing ~ 1.7s</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Procedure1_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Procedure1_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>performancePlot</code> outputs a side-by-side boxplot of the balanced accuracies for each dataset.<br>
+Both methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Procedure1_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -268,68 +301,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 1 1 (2-2,1-1) arrange      gtable[layout]
 2 2 (1-1,1-1) arrange text[GRID.text.276]</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(results) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Sample Accuracy"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}) <span class="co"># loop to calculate sample accuracy</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>accuracyMatrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(result) <span class="fu">performance</span>(result)[[<span class="st">"Sample Accuracy"</span>]])</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(accuracyMatrix) <span class="co">#scatterplot of sample accuracies for both datasets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Procedure1_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid figure-img" width="672"></p>
-</figure>
 </div>
-</div>
-</div>
-</section>
-<section id="classifier-selection-plot" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> Classifier Selection Plot</h1>
+<p><code>samplesMetricMap</code> outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the bulked data as opposed to the pseudobulked data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># classifier must exactly match these options: randomForest, DLDA, kNN, GLM, ridgeGLM, elasticNetGLM, LASSOGLM, SVM, NSC, naiveBayes, mixturesNormals, CoxPH, CoxNet, randomSurvivalForest, XGB</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform cross-validation for each classifier</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    p,  </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,  </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">classifier =</span> <span class="fu">c</span>(<span class="st">"SVM"</span>, <span class="st">"kNN"</span>, <span class="st">"randomForest"</span>, </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>               <span class="st">"naiveBayes"</span>, <span class="st">"XGB"</span>), <span class="co"># Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p), </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFolds =</span> <span class="dv">5</span>,              </span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">nRepeats =</span> <span class="dv">5</span>,            </span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">nCores =</span> <span class="dv">5</span>,</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">characteristicsLabel =</span> <span class="st">"overall_pseudobulking"</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>classifyr_result2 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    p_cell,  </span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> outcome,  </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">selectionMethod =</span> <span class="st">"auto"</span>, </span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">classifier =</span>  <span class="fu">c</span>(<span class="st">"SVM"</span>, <span class="st">"kNN"</span>, <span class="st">"randomForest"</span>, </span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>               <span class="st">"naiveBayes"</span>, <span class="st">"XGB"</span>), <span class="co"># Use the current classifier in the loop. but result will be a list of objects so it can't be put into calcCVperformance</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFeatures =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fu">nrow</span>(p_cell), </span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">nFolds =</span> <span class="dv">5</span>,              </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">nRepeats =</span> <span class="dv">5</span>,            </span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">nCores =</span> <span class="dv">5</span>,</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">characteristicsLabel =</span> <span class="st">"cell_specific_pseudobulking"</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">=</span> <span class="fu">append</span>(classifyr_result, classifyr_result2)</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>results_both <span class="ot">&lt;-</span> <span class="fu">lapply</span>(results_both, <span class="cf">function</span>(results) {</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Balanced Accuracy"</span>)</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(results_both, <span class="at">characteristicsList =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="st">"auto"</span>, <span class="at">fillColour =</span> <span class="st">"characteristicsLabel"</span>)) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>)) <span class="co">#performancePlot is essentially ggplot, so just add one more things</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(accuracyMatrix) <span class="co">#scatterplot of sample accuracies for both datasets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Procedure1_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Procedure1_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>The final command outputs a scatterplot to show the prediction accuracy of each sample in each dataset.<br>
+</p>
 
 
 </section>
