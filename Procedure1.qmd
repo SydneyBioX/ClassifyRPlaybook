@@ -14,6 +14,7 @@ For this analysis, a single-cell transcriptomics dataset for 54 oestrogen recept
 
 ```{r message = FALSE}
 library(ClassifyR)
+library(MultiAssayExperiment)
 library(openxlsx)
 ```
 
@@ -24,9 +25,14 @@ library(openxlsx)
 [Timing \~ 0.15s]{style="color: grey;"}
 
 ```{r}
+bulk_gene <- readRDS("data/procedure1/bulk_gene.rds")
 p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds")
-p_cell <- readRDS("data/procedure1/pseudobulk_celltype_sum.rds")
-data = list("pseudo_bulk_overall" = p, "pseudo_bulk_cell" = p_cell)
+
+# Check dimensions to confirm
+dim(bulk_gene_filtered)
+dim(p_filtered)
+# p_cell <- readRDS("data/procedure1/pseudobulk_celltype_sum.rds")
+# data = list("pseudo_bulk_overall" = p, "pseudo_bulk_cell" = p_cell)
 clinical <- readRDS("data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds")
 ```
 
@@ -86,3 +92,29 @@ The first function uses `calcCVperfomance` to calculate the classification sampl
 The second function uses `performance` to output a matrix of sample accuracies.
 
 This outputs a scatterplot to show the prediction accuracy of each sample in each dataset.\\
+
+
+```{r}
+
+
+# Get the column names from both datasets
+cols_bulk <- rownames(bulk_gene)
+cols_p <- rownames(p)
+
+# Find the intersecting column names
+common_cols <- intersect(cols_bulk, cols_p)
+
+# Subset both datasets to keep only the intersecting columns
+bulk_gene <- bulk_gene[common_cols, , drop = FALSE]
+p <- p[common_cols, , drop = FALSE]
+
+ghist <- MultiAssayExperiment(
+    experiments = list(
+        bulk_gene = bulk_gene,
+        pseudobulk = p
+    )
+)
+
+saveRDS(mae, "ghist_multiassayexperiment.rds")
+```
+

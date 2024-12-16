@@ -27,12 +27,15 @@ mae <- readRDS("data/procedure3/MultiAssayExperiment.rds")
 ```
 This command reads in a preprocessed MultiAssayExperiment containing two assays: miRNA and mRNA. Pairwise ratios of gene expressions are used as predictive features. The miRNA assay contains 62 samples and 34351 features while the mRNA assay contains 62 samples and 14689 features. 
 
-
-
+**3. Creating a prognostic precision pathway** 
 ```{r}
 set.seed(1)
 pp <- precisionPathwaysTrain(mae, "Outcome")
 pp <- calcCostsAndPerformance(pp, setNames(c(0, 12400, 8000), c("Clinical", "RNA_pair", "miRNA_pair")))
+```
+
+
+```{r}
 summary(pp)
 bubblePlot(pp)
 strataPlot(pp, "clinical-RNA_pair")
