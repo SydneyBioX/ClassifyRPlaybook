@@ -4,7 +4,7 @@
 
 Procedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.
 
-For this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are 'Subtype 1' and 'Subtype 2', found by unsupervised machine learning. Subtype 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Subtype 2 is the opposite, associated with poorer survival. More details on the subtypes can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.
+For this analysis, two assays are used. transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 268 genes and 6 cell types. The classification outcomes are 'Subtype 1' and 'Subtype 2', found by unsupervised machine learning. Subtype 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Subtype 2 is the opposite, associated with poorer survival. More details on the subtypes can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.
 
 ## Set up the environment and data objects
 
@@ -25,14 +25,7 @@ library(openxlsx)
 [Timing \~ 0.15s]{style="color: grey;"}
 
 ```{r}
-bulk_gene <- readRDS("data/procedure1/bulk_gene.rds")
-p <- readRDS("data/procedure1/pseudobulk_overall_sum.rds")
-
-# Check dimensions to confirm
-dim(bulk_gene_filtered)
-dim(p_filtered)
-# p_cell <- readRDS("data/procedure1/pseudobulk_celltype_sum.rds")
-# data = list("pseudo_bulk_overall" = p, "pseudo_bulk_cell" = p_cell)
+ghist_mae <- readRDS("data/procedure1/ghist_multiassayexperiment.rds")
 clinical <- readRDS("data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds")
 ```
 
@@ -50,7 +43,7 @@ The final command reads in the clinical data which contains the outcome to be pr
 
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
-classifyr_result3 <- crossValidate(data, outcome = clinical$cluster, classifier = "SVM", nFolds = 5, nRepeats = 100, nCores = 5)
+classifyr_result <- crossValidate(ghist_mae, outcome = "cluster", nFolds = 5, nRepeats = 100, nCores = 5)
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
@@ -64,14 +57,14 @@ The next command uses the `crossValidate` function to perform 5-fold cross-valid
 [Timing \~ 1.7s]{style="color: grey;"}
 
 ```{r warning = FALSE}
-performancePlot(classifyr_result3)
+performancePlot(classifyr_result)
 ```
 
 `performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.\
 Both methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.
 
 ```{r warning = FALSE}
-samplesMetricMap(classifyr_result3)
+samplesMetricMap(classifyr_result)
 ```
 
 `samplesMetricMap` outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1\] when classified by the bulked data as opposed to the pseudobulked data.
@@ -92,29 +85,4 @@ The first function uses `calcCVperfomance` to calculate the classification sampl
 The second function uses `performance` to output a matrix of sample accuracies.
 
 This outputs a scatterplot to show the prediction accuracy of each sample in each dataset.\\
-
-
-```{r}
-
-
-# Get the column names from both datasets
-cols_bulk <- rownames(bulk_gene)
-cols_p <- rownames(p)
-
-# Find the intersecting column names
-common_cols <- intersect(cols_bulk, cols_p)
-
-# Subset both datasets to keep only the intersecting columns
-bulk_gene <- bulk_gene[common_cols, , drop = FALSE]
-p <- p[common_cols, , drop = FALSE]
-
-ghist <- MultiAssayExperiment(
-    experiments = list(
-        bulk_gene = bulk_gene,
-        pseudobulk = p
-    )
-)
-
-saveRDS(mae, "ghist_multiassayexperiment.rds")
-```
 
