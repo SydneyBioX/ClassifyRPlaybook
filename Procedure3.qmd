@@ -1,19 +1,38 @@
 # Procedure 3
 
 ## Intro
+Procedure 3 aims to construct a multi-platform precision pathway for determining the prognostic outcome of melanoma patients. This essentially mimics a clinical diagnostic pathway, where given the results of a diagnostic test, a confident decision may be made, or the patient may be referred to collect more data from a different platform. 
 
-text
+For this analysis, two platforms are employed for 62 samples. This data is accessible at Melanoma Explorer53. The first is an mRNA dataset assayed using Sentrix Human-6 v3 Expression BeadChips (Illumina, San Diego, CA). The second is a microRNA dataset with expression profiling performed using Agilent Technologies' microRNA platform (version 16, Agilent Technologies, Santa Clara, CA). The prognosis outcome is classified as "Good" if survival is greater than 4 years from the date of tumor banking and “Poor” if survival is less than 1 year from the date of tumor banking. Patients who do not match a “Good” or “Poor” prognosis are excluded from analysis. 
 
-## Next thing
 
-more text
+## Set up the environment and data objects
+
+**1. Load the R packages into the R environment**
+
+[Timing \~ __s]{style="color: grey;"}
+
+```{r message = False}
+library(ClassifyR)
+```
+
+`ClassifyR` is used to perform all the demonstrated analyses below.
+
+**2. Import preprocessed datasets for analysis**
+
+[Timing \~ __s]{style="color: grey;"}
+
+```{r}
+mae <- readRDS("data/procedure3/MultiAssayExperiment.rds")
+```
+This command reads in a preprocessed MultiAssayExperiment containing two assays: miRNA and mRNA. Pairwise ratios of gene expressions are used as predictive features. The miRNA assay contains 62 samples and 34351 features while the mRNA assay contains 62 samples and 14689 features. 
+
+
 
 ```{r}
 set.seed(1)
-suppressPackageStartupMessages(library(ClassifyR))
-mae <- readRDS("data/procedure3/MultiAssayExperiment.rds")
 pp <- precisionPathwaysTrain(mae, "Outcome")
-pp <- calcCostsAndPerformance(pp, setNames(c(30, 100, 50), c("Clinical", "RNA_pair", "miRNA_pair")))
+pp <- calcCostsAndPerformance(pp, setNames(c(0, 12400, 8000), c("Clinical", "RNA_pair", "miRNA_pair")))
 summary(pp)
 bubblePlot(pp)
 strataPlot(pp, "clinical-RNA_pair")
