@@ -222,48 +222,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="intro" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="intro"><span class="header-section-number">2.1</span> Intro</h2>
-<p>Procedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.</p>
-<p>For this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are ‘Subtype 1’ and ‘Subtype 2’, found by unsupervised machine learning. Subtype 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Subtype 2 is the opposite, associated with poorer survival. More details on the subtypes can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.</p>
+<p>Procedure 1 aims to compare the classification sample accuracy in bulk gene expression data and histologically predicted gene expression data. Sample accuracy calculates the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.</p>
+<p>For this analysis, two assays are used. The first is a transcriptomics dataset with 268 genes for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients. The second is an assay of the predicted gene expression values from histological images of these individuals. The classification outcomes are ‘Subtype 1’ and ‘Subtype 2’, found by unsupervised machine learning. Subtype 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Subtype 2 is the opposite, associated with poorer survival. More details on the subtypes can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.</p>
 </section>
 <section id="set-up-the-environment-and-data-objects" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="set-up-the-environment-and-data-objects"><span class="header-section-number">2.2</span> Set up the environment and data objects</h2>
 <p><strong>1. Load the R packages into the R environment</strong></p>
 <p><span style="color: grey;">Timing ~ 6.5s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>ClassifyR</code> is used to perform all the demonstrated analyses with <code>openxlsx</code> only used to read in data.</p>
-<p><strong>2. Import datasets:</strong> Preprocessed data will be used for analysis.</p>
+<p><strong>2. Import preprocessed datasets for analysis</strong></p>
 <p><span style="color: grey;">Timing ~ 0.15s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_overall_sum.rds"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_celltype_sum.rds"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"pseudo_bulk_overall"</span> <span class="ot">=</span> p, <span class="st">"pseudo_bulk_cell"</span> <span class="ot">=</span> p_cell)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>clinical <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ghist_mae <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/ghist_multiassayexperiment.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The first and second command respectively read in the bulked and pseudobulked transcriptomic datasets for the 54 individuals.</p>
-<p>Both datasets are combined into a list structure for downstream analysis.</p>
-<p>The final command reads in the clinical data which contains the outcome to be predicted.</p>
+<p>This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named bulk_gene_expression and histologically_predicted_gene_expression.</p>
 </section>
 <section id="cross-validated-classification" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="cross-validated-classification"><span class="header-section-number">2.3</span> Cross-validated Classification</h2>
-<p><strong>3. Classifying patients into subtypes</strong></p>
+<p><strong>3. Classifying patients into subtype outcomes</strong></p>
 <p><span style="color: grey;">Timing ~ 17.0s</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(data, <span class="at">outcome =</span> clinical<span class="sc">$</span>cluster, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(ghist_mae, <span class="at">outcome =</span> <span class="st">"cluster"</span>, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The <code>set.seed(1)</code> command ensures that any subsequent operations involving randomness yield consistent results across runs.</p>
-<p>The next command uses the <code>crossValidate</code> function to perform 5-fold cross-validation with the SVM classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.<br>
+<p>The next command uses the <code>crossValidate</code> function to perform 5-fold cross-validation with the automatically selected RandomForest classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.<br>
 </p>
 </section>
 <section id="classification-evaluation" class="level2" data-number="2.4">
 <h2 data-number="2.4" class="anchored" data-anchor-id="classification-evaluation"><span class="header-section-number">2.4</span> Classification Evaluation</h2>
-<p><strong>4. Classification Performance Visualisation:</strong></p>
+<p><strong>4. Visualising the classification performance</strong></p>
 <p><span style="color: grey;">Timing ~ 1.7s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -273,9 +267,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p><code>performancePlot</code> outputs a side-by-side boxplot of the balanced accuracies for each dataset.<br>
-Both methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.</p>
+Both methods perform comparably in terms of median balanced accuracy and also demonstrate similar distributions of performance as seen from the comparable interquartile range and range. There does not appear to be much difference in the classification performance of both assays.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -287,16 +281,16 @@ Both methods perform comparably in terms of median balanced accuracy, but the sm
 <pre><code>TableGrob (2 x 1) "arrange": 2 grobs
   z     cells    name                grob
 1 1 (2-2,1-1) arrange      gtable[layout]
-2 2 (1-1,1-1) arrange text[GRID.text.276]</code></pre>
+2 2 (1-1,1-1) arrange text[GRID.text.274]</code></pre>
 </div>
 </div>
-<p><code>samplesMetricMap</code> outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the bulked data as opposed to the pseudobulked data.</p>
+<p><code>samplesMetricMap</code> outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the expression data as opposed to the histological data.</p>
 <p>—– Is the following needed?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(results) {</span>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result, <span class="cf">function</span>(results) {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Sample Accuracy"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}) <span class="co"># loop to calculate sample accuracy</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>accuracyMatrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(result) <span class="fu">performance</span>(result)[[<span class="st">"Sample Accuracy"</span>]])</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>accuracyMatrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result, <span class="cf">function</span>(result) <span class="fu">performance</span>(result)[[<span class="st">"Sample Accuracy"</span>]])</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(accuracyMatrix) <span class="co">#scatterplot of sample accuracies for both datasets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">

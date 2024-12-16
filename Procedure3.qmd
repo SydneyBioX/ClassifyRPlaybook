@@ -12,7 +12,7 @@ For this analysis, two platforms are employed for 62 samples. This data is acces
 
 [Timing \~ __s]{style="color: grey;"}
 
-```{r message = False}
+```{r message = FALSE}
 library(ClassifyR)
 ```
 
