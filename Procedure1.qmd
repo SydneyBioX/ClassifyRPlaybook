@@ -19,7 +19,7 @@ library(openxlsx)
 
 `ClassifyR` is used to perform all the demonstrated analyses with `openxlsx` only used to read in data.
 
-**2. Import datasets:** Preprocessed data will be used for analysis.
+**2. Import preprocessed datasets for analysis**
 
 [Timing \~ 0.15s]{style="color: grey;"}
 
@@ -38,7 +38,7 @@ The final command reads in the clinical data which contains the outcome to be pr
 
 ## Cross-validated Classification
 
-**3. Classifying patients into subtypes**
+**3. Classifying patients into subtype outcomes**
 
 [Timing \~ 17.0s]{style="color: grey;"}
 
@@ -53,7 +53,7 @@ The next command uses the `crossValidate` function to perform 5-fold cross-valid
 
 ## Classification Evaluation
 
-**4. Classification Performance Visualisation:**
+**4. Visualising the classification performance**
 
 [Timing \~ 1.7s]{style="color: grey;"}
 
