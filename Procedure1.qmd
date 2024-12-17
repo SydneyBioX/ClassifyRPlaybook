@@ -36,12 +36,12 @@ This command reads in a MultiAssayExperiment with two assays. The first is bulk 
 
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
-classifyr_result <- crossValidate(ghist_mae, outcome = "cluster", nFolds = 5, nRepeats = 100, nCores = 5)
+classifyr_result <- crossValidate(ghist_mae, outcome = "subtype", nFolds = 5, nRepeats = 100, nCores = 5)
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
 
-The next command uses the `crossValidate` function to perform 5-fold cross-validation with the automatically selected RandomForest classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcome here is "cluster", a column from `colData(ghist_mae)` containing the two breast cancer subtypes.\
+The next command uses the `crossValidate` function to perform 5-fold cross-validation with the automatically selected RandomForest classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcome here is "subtype", a column from `colData(ghist_mae)` containing the two breast cancer subtypes to be predicted.\
 
 ## Classification Evaluation
 
