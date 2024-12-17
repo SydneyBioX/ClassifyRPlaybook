@@ -225,41 +225,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="intro" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="intro"><span class="header-section-number">4.1</span> Intro</h2>
-<p>Procedure 3 aims to construct a multi-platform precision pathway for determining the prognostic outcome of melanoma patients. This essentially mimics a clinical diagnostic pathway, where given the results of a diagnostic test, a confident decision may be made, or the patient may be referred to collect more data from a different platform.</p>
-<p>For this analysis, two platforms are employed for 62 samples. This data is accessible at Melanoma Explorer53. The first is an mRNA dataset assayed using Sentrix Human-6 v3 Expression BeadChips (Illumina, San Diego, CA). The second is a microRNA dataset with expression profiling performed using Agilent Technologies’ microRNA platform (version 16, Agilent Technologies, Santa Clara, CA). The prognosis outcome is classified as “Good” if survival is greater than 4 years from the date of tumor banking and “Poor” if survival is less than 1 year from the date of tumor banking. Patients who do not match a “Good” or “Poor” prognosis are excluded from analysis.</p>
+<p>Procedure 3 aims to construct a multi-platform precision pathway for determining the prognostic outcome of melanoma patients. This mimics a clinical diagnostic pathway, where given the results of a diagnostic test, a confident decision may be made, or the patient may be referred to collect more data from a different platform.</p>
+<p>For this analysis, clinical data in addition to sequencing data from two platforms are employed for 62 samples and the data is accessible at Melanoma Explorer53. The first is an mRNA dataset assayed using Sentrix Human-6 v3 Expression BeadChips (Illumina, San Diego, CA). The second is a microRNA dataset with expression profiling performed using Agilent Technologies’ microRNA platform (version 16, Agilent Technologies, Santa Clara, CA). The prognosis outcome is classified as “Good” if survival is greater than 4 years from the date of tumor banking and “Poor” if survival is less than 1 year from the date of tumor banking. Patients who do not match a “Good” or “Poor” prognosis are excluded from analysis.</p>
 </section>
 <section id="set-up-the-environment-and-data-objects" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="set-up-the-environment-and-data-objects"><span class="header-section-number">4.2</span> Set up the environment and data objects</h2>
 <p><strong>1. Load the R packages into the R environment</strong></p>
-<p><span style="color: grey;">Timing ~ __s</span></p>
+<p><span style="color: grey;">Timing ~ 6.5s</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>ClassifyR</code> is used to perform all the demonstrated analyses below.</p>
 <p><strong>2. Import preprocessed datasets for analysis</strong></p>
-<p><span style="color: grey;">Timing ~ __s</span></p>
+<p><span style="color: grey;">Timing ~ 0.82s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mae <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure3/MultiAssayExperiment.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mel_mae <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure3/MultiAssayExperiment.rds"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colData</span>(mel_mae)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DataFrame with 62 rows and 4 columns
+             pathology_T_stage     Outcome       sex       age
+                     &lt;numeric&gt; &lt;character&gt; &lt;numeric&gt; &lt;integer&gt;
+TCGA-BF-A1PX                 5        Poor         2        56
+TCGA-D9-A4Z2                 5        Poor         2        50
+TCGA-EB-A3Y7                 4        Poor         1        86
+TCGA-DA-A1I7                 1        Good         2        62
+TCGA-DA-A1IA                 3        Good         1        32
+...                        ...         ...       ...       ...
+TCGA-FS-A1ZM                 3        Good         2        74
+TCGA-WE-A8ZR                 5        Poor         2        49
+TCGA-FS-A4FD                 3        Good         2        39
+TCGA-WE-A8K1                 4        Good         2        74
+TCGA-WE-A8ZO                 4        Good         1        73</code></pre>
+</div>
 </div>
 <p>This command reads in a preprocessed MultiAssayExperiment containing two assays: miRNA and mRNA. Pairwise ratios of gene expressions are used as predictive features. The miRNA assay contains 62 samples and 34351 features while the mRNA assay contains 62 samples and 14689 features.</p>
 <p><strong>3. Creating a prognostic precision pathway</strong></p>
+<p><span style="color: grey;">Timing ~ 260s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">precisionPathwaysTrain</span>(mae, <span class="st">"Outcome"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in .local(measurements, class, ...): No 'useFeatures' named list element for clincal data is specified. Clinical data often has
-lots of uninformative variables. Please consider specifying useful features.</code></pre>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">precisionPathwaysTrain</span>(mel_mae, <span class="st">"Outcome"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">calcCostsAndPerformance</span>(pp, <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">12400</span>, <span class="dv">8000</span>), <span class="fu">c</span>(<span class="st">"Clinical"</span>, <span class="st">"RNA_pair"</span>, <span class="st">"miRNA_pair"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">calcCostsAndPerformance</span>(pp, <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">12400</span>, <span class="dv">8000</span>), <span class="fu">c</span>(<span class="st">"Clinical"</span>, <span class="st">"RNA_pair"</span>, <span class="st">"miRNA_pair"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>The <code>set.seed(1)</code> command ensures that any subsequent operations involving randomness yield consistent results across runs. The second command trains a multi-platform precision pathway using the two assays given the prognostic outcomes in the “Outcome” column in <code>colData(mel_mae)</code> Finally, the costs and performance of each potential pathway is calculated. Here, the cost of using clinical, mRNA and miRNA data have respectively been approximated to $0, $12400 and $8000.</p>
+<p><strong>4. Precision Pathway Evaluation</strong></p>
+<p><span style="color: grey;">Timing ~ 1.4s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>              Pathway Balanced Accuracy Total Cost Score
 1   clinical-RNA_pair              0.76     223200     1
 2 clinical-miRNA_pair              0.78     144000     2</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bubblePlot</span>(pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Given the costs provided earlier in <code>calcCostsAndPerformance</code>, this command outputs the summary of performance and cost of each potential pathway for evaluation. There are two possible pathways proposed: using clinical then mRNA data or using clinical then miRNA data. Both pathways achieve the same balanced accuracy of 0.75 but due to the lower cost of miRNA sequencing, the second pathway attains a higher score and is the preferable option for prognostic purposes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bubblePlot</span>(pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The `&lt;scale&gt;` argument of `guides()` cannot be `FALSE`. Use "none" instead as
 of ggplot2 3.3.4.
@@ -269,82 +289,32 @@ of ggplot2 3.3.4.
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Procedure3_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Procedure3_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">strataPlot</span>(pp, <span class="st">"clinical-RNA_pair"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This bubble plot visualises the summary created above. In a situation with more potential pathways, it would allow greater ease in selecting the best pathway to optimise cost and performance. Here, clinical-miRNA would be the preferred pathway due to its lower cost while achieving the same balanced accuracy.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flowchart</span>(pp, <span class="st">"clinical-miRNA_pair"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="grViz html-widget html-fill-item" id="htmlwidget-1d61e2aed6f0571f0767" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-1d61e2aed6f0571f0767">{"x":{"diagram":"digraph {\n\ngraph [rankdir = \"LR\"]\n\n\n\n  \"1\" [label = \"clinical\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#86C57C\", fontname = \"helvetica\"] \n  \"2\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#ACCEE0\", fontname = \"helvetica\"] \n  \"3\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"4\" [label = \"miRNA_pair\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#86C57C\", fontname = \"helvetica\"] \n  \"5\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#ACCEE0\", fontname = \"helvetica\"] \n  \"6\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"7\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#F47F72\", fontname = \"helvetica\"] \n  \"8\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#F47F72\", fontname = \"helvetica\"] \n\"1\"->\"2\" [fontname = \"helvetica\", label = \"40% (25)\"] \n\"1\"->\"3\" [fontname = \"helvetica\", label = \"29% (18)\"] \n\"1\"->\"8\" [fontname = \"helvetica\", label = \"31% (19)\"] \n\"3\"->\"4\" [fontname = \"helvetica\", fontname = \"helvetica\"] \n\"4\"->\"5\" [fontname = \"helvetica\", label = \"27% (17)\"] \n\"4\"->\"6\" [fontname = \"helvetica\", label = \"0% (0)\"] \n\"4\"->\"7\" [fontname = \"helvetica\", label = \"2% (1)\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Given that clinical-miRNA is the selected pathway, this function creates a flowchart to show the stepwise process for determining melanoma prognosis. Clinical data is first used to classify patients into three prognosis groups: • Good prognosis: 44% of patients (27 out of total 62). • Uncertain prognosis: 21% of patients (13 out of 62) • Poor prognosis: 35% of patients (22 out of 62). Thus, clinical data alone classifies 71% of patients (Good + Poor groups), while 21% requiring further assessment.</p>
+<p>For the Uncertain prognosis group (13 patients), additional analysis using miRNA pair data refines the classification: • Good prognosis: 19% (12 patients) are identified as “Good.” • Uncertain prognosis: 0% (0 patients) remain “Uncertain.” • Poor prognosis: 2% (1 patient) is reclassified as “Poor.” This is why a potential pathway incorporating clinical, mRNA, and miRNA data was not considered, as the first two datasets alone provided a prognosis outcome for all individuals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">strataPlot</span>(pp, <span class="st">"clinical-miRNA_pair"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Procedure3_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Procedure3_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flowchart</span>(pp, <span class="st">"clinical-RNA_pair"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div class="grViz html-widget html-fill-item" id="htmlwidget-1d61e2aed6f0571f0767" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-1d61e2aed6f0571f0767">{"x":{"diagram":"digraph {\n\ngraph [rankdir = \"LR\"]\n\n\n\n  \"1\" [label = \"clinical\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#86C57C\", fontname = \"helvetica\"] \n  \"2\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#ACCEE0\", fontname = \"helvetica\"] \n  \"3\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"4\" [label = \"RNA_pair\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#86C57C\", fontname = \"helvetica\"] \n  \"5\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#ACCEE0\", fontname = \"helvetica\"] \n  \"6\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"7\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#F47F72\", fontname = \"helvetica\"] \n  \"8\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#F47F72\", fontname = \"helvetica\"] \n\"1\"->\"2\" [fontname = \"helvetica\", label = \"40% (25)\"] \n\"1\"->\"3\" [fontname = \"helvetica\", label = \"29% (18)\"] \n\"1\"->\"8\" [fontname = \"helvetica\", label = \"31% (19)\"] \n\"3\"->\"4\" [fontname = \"helvetica\", fontname = \"helvetica\"] \n\"4\"->\"5\" [fontname = \"helvetica\", label = \"24% (15)\"] \n\"4\"->\"6\" [fontname = \"helvetica\", label = \"0% (0)\"] \n\"4\"->\"7\" [fontname = \"helvetica\", label = \"5% (3)\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> <span class="fu">precisionPathwaysPredict</span>(pp, mae, <span class="st">"Outcome"</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>predictions<span class="sc">$</span>pathways</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$`clinical-RNA_pair`
-$`clinical-RNA_pair`$pathway
-[1] "clinical-RNA_pair"
-
-$`clinical-RNA_pair`$individuals
-DataFrame with 62 rows and 4 columns
-        Tier    Sample ID Predicted  Accuracy
-    &lt;factor&gt;  &lt;character&gt;  &lt;factor&gt; &lt;numeric&gt;
-1   clinical TCGA-BF-A1PX      Poor      1.00
-2   clinical TCGA-D3-A1Q6      Poor      0.00
-3   clinical TCGA-D3-A1QB      Good      1.00
-4   clinical TCGA-D3-A2JA      Good      0.95
-5   clinical TCGA-D3-A2JC      Good      1.00
-...      ...          ...       ...       ...
-58  RNA_pair TCGA-D9-A6EC      Poor      0.40
-59  RNA_pair TCGA-EE-A3JB      Good      0.50
-60  RNA_pair TCGA-EE-A3JE      Good      0.90
-61  RNA_pair TCGA-EE-A29A      Good      0.80
-62  RNA_pair TCGA-ER-A2NG      Good      0.85
-
-$`clinical-RNA_pair`$tiers
-DataFrame with 2 rows and 2 columns
-         Tier Balanced Accuracy
-  &lt;character&gt;         &lt;numeric&gt;
-1    clinical          0.757576
-2    RNA_pair          0.687500
-
-
-$`clinical-miRNA_pair`
-$`clinical-miRNA_pair`$pathway
-[1] "clinical-miRNA_pair"
-
-$`clinical-miRNA_pair`$individuals
-DataFrame with 62 rows and 4 columns
-          Tier    Sample ID Predicted  Accuracy
-      &lt;factor&gt;  &lt;character&gt;  &lt;factor&gt; &lt;numeric&gt;
-1     clinical TCGA-BF-A1PX      Poor      1.00
-2     clinical TCGA-D3-A1Q6      Poor      0.00
-3     clinical TCGA-D3-A1QB      Good      1.00
-4     clinical TCGA-D3-A2JA      Good      0.95
-5     clinical TCGA-D3-A2JC      Good      1.00
-...        ...          ...       ...       ...
-58  miRNA_pair TCGA-EE-A3JB      Good      0.65
-59  miRNA_pair TCGA-FS-A1Z7      Good      0.15
-60  miRNA_pair TCGA-HR-A2OH      Good      0.80
-61  miRNA_pair TCGA-ER-A2NG      Good      0.90
-62  miRNA_pair TCGA-WE-A8ZO      Good      0.85
-
-$`clinical-miRNA_pair`$tiers
-DataFrame with 2 rows and 2 columns
-         Tier Balanced Accuracy
-  &lt;character&gt;         &lt;numeric&gt;
-1    clinical          0.757576
-2  miRNA_pair          0.750000</code></pre>
-</div>
-</div>
+<p>This function creates a plot which allow us to visualise where the prognosis went wrong. A large amount of blue in the clinical row under the green, suggests that this pathway made the most errors in prognosis when first using clinical data, as it classified many “good” prognosis patients with “poor” prognosis. However, clinical data performed comparatively much better on “poor” prognosis patients due to the lesser proportion of blue. For the individuals who continued to use miRNA, there was high sensitivity in identifying individuals with a good prognosis but its specificity was limited as some individuals with a poor prognosis were misclassified as having a good prognosis.</p>
 
 
 </section>
