@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.550">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ClassifyR PlayBook - 2&nbsp; Procedure 1</title>
+<title>2&nbsp; Procedure 1 – ClassifyR PlayBook</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -33,7 +33,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -71,10 +71,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-19fe84b14861edf6ae29e3008defacb0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -121,20 +121,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span class="navbar-title">ClassifyR PlayBook</span>
     </a>
   </div>
-        <div class="quarto-navbar-tools">
+        <div class="quarto-navbar-tools tools-end">
 </div>
           <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./Procedure1.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Procedure 1</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -193,11 +193,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro"><span class="header-section-number">2.1</span> Intro</a></li>
   <li><a href="#set-up-the-environment-and-data-objects" id="toc-set-up-the-environment-and-data-objects" class="nav-link" data-scroll-target="#set-up-the-environment-and-data-objects"><span class="header-section-number">2.2</span> Set up the environment and data objects</a></li>
-  <li><a href="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" id="toc-final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" class="nav-link" data-scroll-target="#final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test"><span class="header-section-number">3</span> ## Final Procedure using SCM Classifier with 5% of features selected from t-test</a>
-  <ul class="collapse">
-  <li><a href="#cross-validated-classification" id="toc-cross-validated-classification" class="nav-link" data-scroll-target="#cross-validated-classification"><span class="header-section-number">3.1</span> Cross-validated Classification</a></li>
-  <li><a href="#classification-evaluation" id="toc-classification-evaluation" class="nav-link" data-scroll-target="#classification-evaluation"><span class="header-section-number">3.2</span> Classification Evaluation</a></li>
-  </ul></li>
+  <li><a href="#cross-validated-classification" id="toc-cross-validated-classification" class="nav-link" data-scroll-target="#cross-validated-classification"><span class="header-section-number">2.3</span> Cross-validated Classification</a></li>
+  <li><a href="#classification-evaluation" id="toc-classification-evaluation" class="nav-link" data-scroll-target="#classification-evaluation"><span class="header-section-number">2.4</span> Classification Evaluation</a></li>
   </ul>
 </nav>
     </div>
@@ -225,62 +222,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="intro" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="intro"><span class="header-section-number">2.1</span> Intro</h2>
-<p>Procedure 1 aims to compare the classification sample accuracy in bulked and pseudobulked data using an SVM classifier. Sample accuracy calcualtes the proportion of correct predicted classifications over n repeats. For example, if 70 out of 100 repeats accurately classify an individual, their sample accuracy is 0.70.</p>
-<p>For this analysis, a single-cell transcriptomics dataset for 54 oestrogen receptor positive (ER+)/progesterone receptor positive (PR+) breast cancer patients is used. There are 280 genes and 6 cell types. The classification outcomes are ‘cluster 1’ and ‘cluster 2’, found by unsupervised machine learning. Cluster 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Cluster 2 is the opposite, associated with poorer survival. More details on the clusters can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.</p>
+<p>Procedure 1 aims to compare the classification sample accuracy of breast cancer subtypes using bulk gene expression data and histologically predicted gene expression data. Sample accuracy is defined as the proportion of correctly predicted classifications over multiple repeats. For example, if 70 out of 100 repeats correctly classify an individual, their sample accuracy is 0.70.</p>
+<p>This analysis involves 54 oestrogen receptor-positive (ER+) and progesterone receptor-positive (PR+) breast cancer patients, with each assay containing expression values for 268 genes. The classification outcomes are ‘Subtype 1’ and ‘Subtype 2’, found by unsupervised machine learning. Subtype 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Subtype 2 is the opposite, associated with poorer survival. More details on the subtypes can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.</p>
 </section>
 <section id="set-up-the-environment-and-data-objects" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="set-up-the-environment-and-data-objects"><span class="header-section-number">2.2</span> Set up the environment and data objects</h2>
-<p><strong>1. Load the R packages into the R environment:</strong></p>
+<p><strong>1. Load the R packages into the R environment</strong></p>
 <p><span style="color: grey;">Timing ~ 6.5s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(openxlsx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="final-procedure-using-scm-classifier-with-5-of-features-selected-from-t-test" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> ## Final Procedure using SCM Classifier with 5% of features selected from t-test</h1>
-<p><strong>2. Import datasets</strong></p>
-<p><span style="color: grey;">Timing ~ 0.15s</span></p>
+<p><code>ClassifyR</code> is used to perform all the demonstrated analyses with <code>openxlsx</code> only used to read in data.</p>
+<p><strong>2. Import preprocessed datasets for analysis</strong></p>
+<p><span style="color: grey;">Timing ~ 0.04s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_overall_sum.rds"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>p_cell <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/pseudobulk_celltype_sum.rds"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">list</span>(<span class="st">"pseudo_bulk_overall"</span> <span class="ot">=</span> p, <span class="st">"pseudo_bulk_cell"</span> <span class="ot">=</span> p_cell)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/cluster_result_ER_and_PR_onlyER+PR+.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ghist_mae <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure1/ghist_multiassayexperiment.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The first and second command respectively read in the bulked and pseudobulked transcriptomic datasets for the 54 individuals.</p>
-<p>Both datasets are combined into a list structure for downstream analysis.</p>
-<p>The final command reads in the clustering outcome to be predicted.</p>
-<section id="cross-validated-classification" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="cross-validated-classification"><span class="header-section-number">3.1</span> Cross-validated Classification</h2>
-<p><strong>3. Classifying patients into clusters</strong></p>
-<p><span style="color: grey;">Timing ~ 17.0s</span></p>
+<p>This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named bulk_gene_expression and histologically_predicted_gene_expression.</p>
+</section>
+<section id="cross-validated-classification" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="cross-validated-classification"><span class="header-section-number">2.3</span> Cross-validated Classification</h2>
+<p><strong>3. Classifying patients into subtype outcomes</strong></p>
+<p><span style="color: grey;">Timing ~ 45.0s</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nFeatures <span class="ot">=</span> <span class="fu">list</span>(<span class="at">pseudo_bulk_overall =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p), <span class="at">pseudo_bulk_cell =</span> <span class="fl">0.05</span><span class="sc">*</span><span class="fu">ncol</span>(p_cell))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(data, <span class="at">outcome =</span> clusters<span class="sc">$</span>cluster, <span class="at">classifier =</span> <span class="st">"SVM"</span>, <span class="at">nFeatures =</span> nFeatures, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>classifyr_result <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(ghist_mae, <span class="at">outcome =</span> <span class="st">"subtype"</span>, <span class="at">nFolds =</span> <span class="dv">5</span>, <span class="at">nRepeats =</span> <span class="dv">100</span>, <span class="at">nCores =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The <code>set.seed(1)</code> command ensures that any subsequent operations involving randomness yield consistent results across runs.</p>
-<p>The second command defines the number of features to be selected. Here, it is set to 5% of the available features in each dataset.</p>
-<p>The final command uses the <code>crossValidate</code> function to perform 5-fold cross-validation with the SVM classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses.<br>
-<br>
+<p>The next command uses the <code>crossValidate</code> function to perform 5-fold cross-validation with the automatically selected RandomForest classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcome here is “subtype”, a column from <code>colData(ghist_mae)</code> containing the two breast cancer subtypes to be predicted.<br>
 </p>
 </section>
-<section id="classification-evaluation" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="classification-evaluation"><span class="header-section-number">3.2</span> Classification Evaluation</h2>
-<p><strong>4. Classification Accuracy</strong></p>
-<p><span style="color: grey;">Timing ~ 0.21s</span></p>
+<section id="classification-evaluation" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="classification-evaluation"><span class="header-section-number">2.4</span> Classification Evaluation</h2>
+<p><strong>4. Visualising the classification performance</strong></p>
+<p><span style="color: grey;">Timing ~ 1.75s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>classifyr_result3 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(results) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">calcCVperformance</span>(results, <span class="at">performanceType =</span> <span class="st">"Sample Accuracy"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>}) <span class="co"># loop to calculate sample accuracy</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>accuracyMatrix <span class="ot">&lt;-</span> <span class="fu">sapply</span>(classifyr_result3, <span class="cf">function</span>(result) <span class="fu">performance</span>(result)[[<span class="st">"Sample Accuracy"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Procedure1_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
 </div>
-<p>The first function uses <code>calcCVperfomance</code> to calculate the classification sample accuracy for both datasets.</p>
-<p>The second function uses <code>performance</code> to output a matrix of sample accuracies.</p>
-<p><strong>5. Classification Performance Visualisation</strong></p>
-<p><span style="color: grey;">Timing ~ 1.7s</span></p>
+</div>
+</div>
+<p><code>performancePlot</code> outputs a side-by-side boxplot of the balanced accuracies for each dataset.<br>
+Both methods perform comparably in terms of median balanced accuracy and also demonstrate similar distributions of performance as seen from the comparable interquartile range and range. There does not appear to be much difference in the classification performance of both assays.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -288,41 +277,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 </div>
-</div>
-<p><code>performancePlot</code> outputs a side-by-side boxplot of the balanced accuracies for each dataset.<br>
-Both methods perform comparably in terms of median balanced accuracy, but the smaller range and interquartile range in balanced accuracy of the bulked datasets suggests it may be preferable for more consistent results.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(classifyr_result3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Procedure1_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TableGrob (2 x 1) "arrange": 2 grobs
   z     cells    name                grob
 1 1 (2-2,1-1) arrange      gtable[layout]
-2 2 (1-1,1-1) arrange text[GRID.text.276]</code></pre>
+2 2 (1-1,1-1) arrange text[GRID.text.274]</code></pre>
 </div>
 </div>
-<p><code>samplesMetricMap</code> outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the bulked data as opposed to the pseudobulked data.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(accuracyMatrix) <span class="co">#scatterplot of sample accuracies for both datasets</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Procedure1_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>The final command outputs a scatterplot to show the prediction accuracy of each sample in each dataset.<br>
-</p>
+<p><code>samplesMetricMap</code> outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1] when classified by the expression data as opposed to the histological data.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -361,18 +325,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -404,7 +357,45 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
   function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
@@ -439,7 +430,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
     });
   }
   const xrefs = window.document.querySelectorAll('a.quarto-xref');
@@ -487,7 +482,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {
