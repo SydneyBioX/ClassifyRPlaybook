@@ -159,8 +159,10 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a>
   <ul class="collapse">
-  <li><a href="#welcome" id="toc-welcome" class="nav-link" data-scroll-target="#welcome"><span class="header-section-number">1.1</span> Welcome!</a></li>
-  <li><a href="#ummm" id="toc-ummm" class="nav-link" data-scroll-target="#ummm"><span class="header-section-number">1.2</span> ummm</a></li>
+  <li><a href="#precision-medicine-and-the-need-for-advanced-classification-tools" id="toc-precision-medicine-and-the-need-for-advanced-classification-tools" class="nav-link" data-scroll-target="#precision-medicine-and-the-need-for-advanced-classification-tools"><span class="header-section-number">1.1</span> <strong>Precision medicine and the need for advanced classification tools</strong></a>
+  <ul class="collapse">
+  <li><a href="#what-is-classifyr" id="toc-what-is-classifyr" class="nav-link" data-scroll-target="#what-is-classifyr"><span class="header-section-number">1.1.1</span> <strong>What is ClassifyR?</strong></a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -201,15 +203,24 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="overview" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Overview</h1>
-<section id="welcome" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="welcome"><span class="header-section-number">1.1</span> Welcome!</h2>
-<p>text</p>
+<section id="precision-medicine-and-the-need-for-advanced-classification-tools" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="precision-medicine-and-the-need-for-advanced-classification-tools"><span class="header-section-number">1.1</span> <strong>Precision medicine and the need for advanced classification tools</strong></h2>
+<p>Precision medicine is a personalised approach to healthcare that tailors prevention, diagnosis, and treatment to an individual’s unique characteristics such as genetics, environment, lifestyle, and molecular data. By integrating diverse data types, the ultimate goal of precision medicine is to deliver the right decision or treatment to the right patient at the right time. While this has driven the development of complex classification strategies, realising this vision relies on robust evaluation of model performance at both cohort and patient levels.&nbsp;</p>
+<section id="what-is-classifyr" class="level3" data-number="1.1.1">
+<h3 data-number="1.1.1" class="anchored" data-anchor-id="what-is-classifyr"><span class="header-section-number">1.1.1</span> <strong>What is ClassifyR?</strong></h3>
+<p>This playbook presents <strong>ClassifyR,</strong> a comprehensive machine learning framework tailored for multi-omics classification problems in a precision medicine context. ClassifyR was first introduced in 2015 as a tool for assessing classification performance in omics research, particularly evaluating feature selection approaches in transcriptomics (Strbenac et al., 2015). It provides systematic comparison of predictive models, emphasising accuracy, stability and interpretability. While machine learning evaluation frameworks such as caret and mlr in R and scikit-learn in Python provide general-purpose machine learning frameworks, they lack specific capabilities for pre-processing, feature selection, feature interrogation, multi-omic integration and cross-platform performance evaluation. Standardising these procedures into a unified framework can facilitate more systematic and robust evaluations. Thus, ClassifyR distinguishes itself in multiple ways:</p>
+<ul>
+<li><p><strong>Bioconductor ecosystem integration</strong>: ClassifyR is interoperable with established omics data structures in the Bioconductor Project, ensuring seamless access to single-cell, multi-omics, and spatial technologies.</p></li>
+<li><p><strong>Full cross-validation workflow</strong>: The package performs comprehensive cross-validation by including feature selection and hyperparameter tuning within the cross-validation procedure, which is essential for handling large-scale omics datasets.</p></li>
+<li><p><strong>Cross-dataset and cross-modality validation</strong>: Models can be both constructed and evaluated across cohorts and omics platforms, addressing issues of reproducibility and transferability.</p></li>
+<li><p><strong>Precision medicine focus</strong>: ClassifyR includes frameworks for assessing model appropriateness at an individual patient level which is crucial for evaluating which model or modality is appropriate for which patient.</p></li>
+</ul>
+<p>By addressing these critical gaps, ClassifyR enables researchers to explore complex disease mechanisms, optimise diagnostic workflows, and guide treatment strategies in precision medicine.</p>
+<p><br>
+</p>
+
+
 </section>
-<section id="ummm" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="ummm"><span class="header-section-number">1.2</span> ummm</h2>
-<p>more text</p>
-
-
 </section>
 </section>
 
