@@ -12,9 +12,11 @@ For this analysis, clinical data in addition to sequencing data from two platfor
 
 [Timing \~ 6.5s]{style="color: grey;"}
 
+
 ```{r message = FALSE}
 library(ClassifyR)
 ```
+
 
 `ClassifyR` is used to perform all the demonstrated analyses below.
 
@@ -22,21 +24,25 @@ library(ClassifyR)
 
 [Timing \~ 0.82s]{style="color: grey;"}
 
+
 ```{r}
 mel_mae <- readRDS("data/procedure3/MultiAssayExperiment.rds")
 colData(mel_mae)
 ```
+
 This command reads in a preprocessed MultiAssayExperiment containing two assays: miRNA and mRNA. Pairwise ratios of gene expressions are used as predictive features. The miRNA assay contains 62 samples and 34351 features while the mRNA assay contains 62 samples and 14689 features. 
 
 **3. Creating a prognostic precision pathway** 
 
 [Timing \~ 260s]{style="color: grey;"}
 
+
 ```{r warning = FALSE}
 set.seed(1)
 pp <- precisionPathwaysTrain(mel_mae, "Outcome")
 pp <- calcCostsAndPerformance(pp, setNames(c(0, 12400, 8000), c("Clinical", "RNA_pair", "miRNA_pair")))
 ```
+
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
 The second command trains a multi-platform precision pathway using the two assays given the prognostic outcomes in the "Outcome" column in `colData(mel_mae)`
 Finally, the costs and performance of each potential pathway is calculated. Here, the cost of using clinical, mRNA and miRNA data have respectively been approximated to $0, $12400 and $8000.
@@ -45,19 +51,25 @@ Finally, the costs and performance of each potential pathway is calculated. Here
 
 [Timing \~ 1.4s]{style="color: grey;"}
 
+
 ```{r}
 summary(pp)
 ```
+
 Given the costs provided earlier in `calcCostsAndPerformance`, this command outputs the summary of performance and cost of each potential pathway for evaluation. There are two possible pathways proposed: using clinical then mRNA data or using clinical then miRNA data. Both pathways achieve the same balanced accuracy of 0.75 but due to the lower cost of miRNA sequencing, the second pathway attains a higher score and is the preferable option for prognostic purposes.
+
 
 ```{r}
 bubblePlot(pp)
 ```
+
 This bubble plot visualises the summary created above. In a situation with more potential pathways, it would allow greater ease in selecting the best pathway to optimise cost and performance. Here, clinical-miRNA would be the preferred pathway due to its lower cost while achieving the same balanced accuracy.
+
 
 ```{r}
 flowchart(pp, "clinical-miRNA_pair")
 ```
+
 Given that clinical-miRNA is the selected pathway, this function creates a flowchart to show the stepwise process for determining melanoma prognosis. Clinical data is first used to classify patients into three prognosis groups:
 	•	Good prognosis: 44% of patients (27 out of total 62).
 	•	Uncertain prognosis: 21% of patients (13 out of 62) 
@@ -70,9 +82,12 @@ For the Uncertain prognosis group (13 patients), additional analysis using miRNA
 	•	Poor prognosis: 2% (1 patient) is reclassified as “Poor.” 
 This is why a potential pathway incorporating clinical, mRNA, and miRNA data was not considered, as the first two datasets alone provided a prognosis outcome for all individuals.
 
+
 ```{r}
 strataPlot(pp, "clinical-miRNA_pair")
 ```
+
 This function creates a plot which allow us to visualise where the prognosis went wrong. A large amount of blue in the clinical row under the green, suggests that this pathway made the most errors in prognosis when first using clinical data, as it classified many "good" prognosis patients with "poor" prognosis. However, clinical data performed comparatively much better on "poor" prognosis patients due to the lesser proportion of blue. For the individuals who continued to use miRNA, there was high sensitivity in identifying individuals with a good prognosis but its specificity was limited as some individuals with a poor prognosis were misclassified as having a good prognosis.
+
 
 

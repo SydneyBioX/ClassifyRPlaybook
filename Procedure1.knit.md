@@ -12,9 +12,14 @@ This analysis involves 54 oestrogen receptor-positive (ER+) and progesterone rec
 
 [Timing \~ 6.5s]{style="color: grey;"}
 
-```{r message = FALSE}
+
+::: {.cell}
+
+```{.r .cell-code}
 library(ClassifyR)
 ```
+:::
+
 
 `ClassifyR` is used to perform all the demonstrated analyses.
 
@@ -22,9 +27,14 @@ library(ClassifyR)
 
 [Timing \~ 0.04s]{style="color: grey;"}
 
-```{r}
+
+::: {.cell}
+
+```{.r .cell-code}
 ghist_mae <- readRDS("data/procedure1/ghist_multiassayexperiment.rds")
 ```
+:::
+
 
 This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named bulk_gene_expression and histologically_predicted_gene_expression. 
 
@@ -34,10 +44,15 @@ This command reads in a MultiAssayExperiment with two assays. The first is bulk 
 
 [Timing \~ 45.0s]{style="color: grey;"}
 
-```{r warning = FALSE, message = FALSE}
+
+::: {.cell}
+
+```{.r .cell-code}
 set.seed(1)
 classifyr_result <- crossValidate(ghist_mae, outcome = "subtype", nFolds = 5, nRepeats = 100, nCores = 5)
 ```
+:::
+
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
 
@@ -49,15 +64,46 @@ The next command uses the `crossValidate` function to perform 5-fold cross-valid
 
 [Timing \~ 1.75s]{style="color: grey;"}
 
-```{r warning = FALSE}
+
+::: {.cell}
+
+```{.r .cell-code}
 performancePlot(classifyr_result)
 ```
+
+::: {.cell-output-display}
+![](Procedure1_files/figure-html/unnamed-chunk-4-1.png){width=672}
+:::
+:::
+
 
 `performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.\
 Both methods perform comparably in terms of median balanced accuracy and also demonstrate similar distributions of performance as seen from the comparable interquartile range and range. There does not appear to be much difference in the classification performance of both assays.
 
-```{r warning = FALSE}
+
+::: {.cell}
+
+```{.r .cell-code}
 samplesMetricMap(classifyr_result)
 ```
 
+::: {.cell-output-display}
+![](Procedure1_files/figure-html/unnamed-chunk-5-1.png){width=672}
+:::
+
+::: {.cell-output .cell-output-stdout}
+
+```
+TableGrob (2 x 1) "arrange": 2 grobs
+  z     cells    name                grob
+1 1 (2-2,1-1) arrange      gtable[layout]
+2 2 (1-1,1-1) arrange text[GRID.text.274]
+```
+
+
+:::
+:::
+
+
 `samplesMetricMap` outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1\] when classified by the expression data as opposed to the histological data.
+
