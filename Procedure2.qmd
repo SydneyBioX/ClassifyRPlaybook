@@ -1,9 +1,0 @@
-# Procedure 2
-
-## Intro
-
-text
-
-## Next thing
-
-more text
