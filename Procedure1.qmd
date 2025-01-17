@@ -1,4 +1,4 @@
-# Comparing cross-validated results
+# Procedure 1: Comparing cross-validated results
 
 ## Introduction
 
@@ -6,7 +6,7 @@ Procedure 1 aims to compare the sample accuracy of breast cancer subtype classif
 
 This analysis involves 54 oestrogen receptor-positive (ER+) and progesterone receptor-positive (PR+) breast cancer patients, with each assay containing expression values for 268 genes. The classification outcomes are 'Subtype 1' and 'Subtype 2', found by unsupervised machine learning. Subtype 1 corresponds to patients with higher expression of LPL, CAVIN2, and TIMP4 in macrophage cells, and ADIPOQ in stromal cells, associated with better survival. Subtype 2 is the opposite, associated with poorer survival. More details on the subtypes can be found at https://www.biorxiv.org/content/10.1101/2024.07.02.601790v1.full.
 
-## Set up the environment and data objects
+## Setting up the environment and data objects
 
 **1. Load the R packages into the R environment**
 
@@ -26,7 +26,7 @@ library(ClassifyR)
 ghist_mae <- readRDS("data/procedure1/ghist_multiassayexperiment.rds")
 ```
 
-This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named bulk_gene_expression and histologically_predicted_gene_expression. 
+This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named bulk_gene_expression and histologically_predicted_gene_expression.
 
 ## Cross-validated Classification
 

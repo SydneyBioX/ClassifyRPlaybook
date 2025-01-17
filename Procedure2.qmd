@@ -1,59 +1,72 @@
-# Procedure 2
+# Procedure 2: Multi-view classifiability evaluation
 
-ClassifyR implemenents a variety of ways to evaluate the classifiability of samples from multiple views. A view could be an omics assay or it could be a particular metafeature generation of a particular data set.
+ClassifyR implements a variety of ways to evaluate the classifiability of samples from multiple views. A view could be an omics assay or it could be a particular metafeature generation of a particular data set.
 
 ## Introduction
 
-In this case study, both different assays and different metafeatures will be demonstrated of the widely-known METRBEIC breast cancer data set. These have been pre-generated. Briefly,
+In this case study, both different assays and different metafeatures will be demonstrated of the widely-known METABRIC breast cancer data set. These have been pre-generated. Briefly,
 
-- Clinical: Contains the outcome of interest (recurrence-free survival) as well as covariates that could predict it, such as tumour size and grade.
-- RNA abundance: This was measured by microarrays. Quantile normalisation and prove reannotation was made by cBioPortal. Top 2000 highly-variable genes are used for illustration.
-- Imaging mass cytometry: Complementary to RNA, this assay gives the protein abundances for a small panel of 39 proteins. This is the basis of:
-    - **Type Proportions**: Using annotated cell types, the proportion of each cell type in each patient sample.
-    - **Type Protein Mean**: For each cell type, the average abundance of each feature in each sample.
-    - **Type Pairs Colocated**: For each pair of cell types, a score of association using their X and Y coordinates based on L curve.
-    - **Colocated in Regions**: k-means clustering-based definition of regions and spatial association within them. 
-    - **Proportions of Parent**: Based on HOPACH hierarchical clustering, the proportion of a cell type to its parent type.
-    
+-   Clinical: Contains the outcome of interest (recurrence-free survival) as well as covariates that could predict it, such as tumour size and grade.
+-   RNA abundance: This was measured by microarrays. Quantile normalisation and prove reannotation was made by cBioPortal. Top 2000 highly-variable genes are used for illustration.
+-   Imaging mass cytometry: Complementary to RNA, this assay gives the protein abundances for a small panel of 39 proteins. This is the basis of:
+    -   **Type Proportions**: Using annotated cell types, the proportion of each cell type in each patient sample.
+    -   **Type Protein Mean**: For each cell type, the average abundance of each feature in each sample.
+    -   **Type Pairs Colocated**: For each pair of cell types, a score of association using their X and Y coordinates based on L curve.
+    -   **Colocated in Regions**: k-means clustering-based definition of regions and spatial association within them.
+    -   **Proportions of Parent**: Based on HOPACH hierarchical clustering, the proportion of a cell type to its parent type.
+
 The subset of samples which have no detected lymph node metastasis, irrespective of stage, are used for subsequent analysis.
 
-## Data Loading and Glimpse
+## Setting up the environment and data objects
+
+**1. Load the R packages into the R environment**
 
 The first step is to load the data and look at a few records (2 minutes).
 
+[Timing \~ 6.5s]{style="color: grey;"}
+
 ```{r, message = FALSE}
 library(ClassifyR)
+library(ggplot2)
+```
+
+`ClassifyR` is used to perform all the demonstrated analyses below.
+
+**2. Import preprocessed datasets for analysis**
+
+[Timing \~ 0.057s]{style="color: grey;"}
+
+```{r}
 METABRIC <- readRDS("data/procedure2/METABRICviews.rds")
 sapply(METABRIC, dim)
 ```
 
-The number of features varies from ten to 2000 for 165 patients. Next, look more closely at clinical data.
+The number of features vary from 10 to 2000 for 165 patients. Next, look more closely at clinical data.
 
+[Timing \~ 0.055s]{style="color: grey;"}
 ```{r}
 head(METABRIC[["clinical"]])
 table(METABRIC[["clinical"]][, "Lymph.Nodes.Positive"])
-```
-
-`timeRFS` and `eventRFS` columns will form the outcome to predict.
-
-Clinical data often has arbitrary sample identifiers, dates and other non-biological information which should not be used in model building. Define a set of useful features for further use.
-
-```{r}
 usefulFeatures <- c("Breast.Tumour.Laterality", "ER.Status", "Inferred.Menopausal.State",
                     "Grade", "Size", "Stage")
 ```
 
+`timeRFS` and `eventRFS` columns will form the outcomes to predict.
+
+Clinical data often has arbitrary sample identifiers, dates and other non-biological information which should not be used in model building. Define a set of useful features for further use.
+
 ## Model Building and Evaluation
 
-Examine whether any view alone is the best predictor or whether combinations of view adds value to accuracy. Note that any parameters to the `prepare` element of `extraParams` will be passed to the `prepareData` function.
+Examine whether any view alone is the best predictor or whether combinations of views add value to accuracy. Note that any parameters to the `prepare` element of `extraParams` will be passed to the `prepareData` function.
 
-### Indivdual Assays (2 minutes)
+**3. Individual Assays**
 
-The first analysis fits a penalised Cox proportional hazards model to each assay alone. Remember that the default sceheme of `crossValidate` is 5-fold cross-validation repeated 20 times.
+[Timing \~ 120s]{style="color: grey;"}
+
+The first analysis fits a penalised Cox proportional hazards model to each assay alone. Remember that the default scheme of `crossValidate` is 5-fold cross-validation repeated 20 times.
 
 ```{r, warning = FALSE, message = FALSE, fig.width = 8}
 set.seed(2024)
-library(ggplot2)
 coxPredicts <- crossValidate(METABRIC, c("timeRFS", "eventRFS"),
                              selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20,
                              extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))))
@@ -66,13 +79,16 @@ forMerge <- c("clinical", "RNA Microarray", "Type Proportions", "Type Pairs Colo
 
 The most accurate view is Proportion of Parent but using only the freely available clinical data is qualitatively the same as omics. It is also interesting to observe that protein assay has better predicted performance although it has about a hundred times less features to use than RNA does.
 
-It is also worthwhile looking at per-sample C-index, which is simply the number of concordant pairs divided by the total number of feasible pairs of sample comaparisons between the predicted risk score and the event-time recorded outcome.
-
+[Timing \~ 26s]{style="color: grey;"}
 ```{r}
 perSampleC <- samplesMetricMap(coxPredicts[c(1:3, 7)], showXtickLabels = FALSE)
 ```
 
-### View Combinations
+It is also worthwhile looking at per-sample C-index, which is simply the number of concordant pairs divided by the total number of feasible pairs of sample comparisons between the predicted risk score and the event-time recorded outcome.
+
+**4. Individual Assays**
+
+[Timing \~ 21.2mins]{style="color: grey;"}
 
 Although it is possible to exhaustively combine all possible subsets of the seven views, the large number of box plots becomes difficult to interpret. Hence, clinical, RNA and two imaging mass cytometry views Proportion of Parent (best individual view) and Type Proportions (worst individual view) will be included.
 
@@ -91,6 +107,7 @@ An alternative to simply concatenating features is to do prevalidation. Training
 
 To perform prevalidation, specify `multiViewMethod = "prevalidation"` (17 minutes)
 
+[Timing \~ 46.6mins]{style="color: grey;"}
 ```{r, warning = FALSE}
 coxPrevalPredicts <- crossValidate(METABRIC[forMerge], c("timeRFS", "eventRFS"),
                      extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))),
@@ -102,6 +119,7 @@ performancePlot(coxPrevalPredicts)
 
 Examine the features selected for when RNA data augmented the clinical data.
 
+[Timing \~ 0.03s]{style="color: grey;"}
 ```{r}
 coxPrevalPredicts[[2]]
 distribution(coxPrevalPredicts[[2]], plot = FALSE)
