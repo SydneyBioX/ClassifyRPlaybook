@@ -8,13 +8,10 @@ execute:
 book:
   title: "ClassifyR PlayBook"
   author: "Dario Strbenac, Jasmine Gu, Jean Yang and Ellis Patrick"
-  date: !expr os.date("%d-%m-%y")
   chapters:
     - index.qmd
     - Procedure1.qmd
-    - Procedure2.qmd
     - Procedure3.qmd
-    - Procedure4.qmd
   navbar:
     logo: images/USydLogo.svg
   sidebar:
