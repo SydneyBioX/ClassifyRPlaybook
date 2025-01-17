@@ -1,0 +1,114 @@
+# Procedure 2
+
+ClassifyR implemenents a variety of ways to evaluate the classifiability of samples from multiple views. A view could be an omics assay or it could be a particular metafeature generation of a particular data set.
+
+## Introduction
+
+In this case study, both different assays and different metafeatures will be demonstrated of the widely-known METRBEIC breast cancer data set. These have been pre-generated. Briefly,
+
+- Clinical: Contains the outcome of interest (recurrence-free survival) as well as covariates that could predict it, such as tumour size and grade.
+- RNA abundance: This was measured by microarrays. Quantile normalisation and prove reannotation was made by cBioPortal. Top 2000 highly-variable genes are used for illustration.
+- Imaging mass cytometry: Complementary to RNA, this assay gives the protein abundances for a small panel of 39 proteins. This is the basis of:
+    - **Type Proportions**: Using annotated cell types, the proportion of each cell type in each patient sample.
+    - **Type Protein Mean**: For each cell type, the average abundance of each feature in each sample.
+    - **Type Pairs Colocated**: For each pair of cell types, a score of association using their X and Y coordinates based on L curve.
+    - **Colocated in Regions**: k-means clustering-based definition of regions and spatial association within them. 
+    - **Proportions of Parent**: Based on HOPACH hierarchical clustering, the proportion of a cell type to its parent type.
+    
+The subset of samples which have no detected lymph node metastasis, irrespective of stage, are used for subsequent analysis.
+
+## Data Loading and Glimpse
+
+The first step is to load the data and look at a few records (2 minutes).
+
+```{r, message = FALSE}
+library(ClassifyR)
+METABRIC <- readRDS("data/procedure2/METABRICviews.rds")
+sapply(METABRIC, dim)
+```
+
+The number of features varies from ten to 2000 for 165 patients. Next, look more closely at clinical data.
+
+```{r}
+head(METABRIC[["clinical"]])
+table(METABRIC[["clinical"]][, "Lymph.Nodes.Positive"])
+```
+
+`timeRFS` and `eventRFS` columns will form the outcome to predict.
+
+Clinical data often has arbitrary sample identifiers, dates and other non-biological information which should not be used in model building. Define a set of useful features for further use.
+
+```{r}
+usefulFeatures <- c("Breast.Tumour.Laterality", "ER.Status", "Inferred.Menopausal.State",
+                    "Grade", "Size", "Stage")
+```
+
+## Model Building and Evaluation
+
+Examine whether any view alone is the best predictor or whether combinations of view adds value to accuracy. Note that any parameters to the `prepare` element of `extraParams` will be passed to the `prepareData` function.
+
+### Indivdual Assays (2 minutes)
+
+The first analysis fits a penalised Cox proportional hazards model to each assay alone. Remember that the default sceheme of `crossValidate` is 5-fold cross-validation repeated 20 times.
+
+```{r, warning = FALSE, message = FALSE, fig.width = 8}
+set.seed(2024)
+library(ggplot2)
+coxPredicts <- crossValidate(METABRIC, c("timeRFS", "eventRFS"),
+                             selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20,
+                             extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))))
+orderViews <- c("clinical", "RNA Microarray", "Type Proportions",
+                 "Proportion of Parent", "Colocated in Regions", "Type Protein Mean", "Type Pairs Colocated")
+performancePlot(coxPredicts, orderingList = list(`Assay Name` = orderViews)) +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+forMerge <- c("clinical", "RNA Microarray", "Type Proportions", "Type Pairs Colocated")
+```
+
+The most accurate view is Proportion of Parent but using only the freely available clinical data is qualitatively the same as omics. It is also interesting to observe that protein assay has better predicted performance although it has about a hundred times less features to use than RNA does.
+
+It is also worthwhile looking at per-sample C-index, which is simply the number of concordant pairs divided by the total number of feasible pairs of sample comaparisons between the predicted risk score and the event-time recorded outcome.
+
+```{r}
+perSampleC <- samplesMetricMap(coxPredicts[c(1:3, 7)], showXtickLabels = FALSE)
+```
+
+### View Combinations
+
+Although it is possible to exhaustively combine all possible subsets of the seven views, the large number of box plots becomes difficult to interpret. Hence, clinical, RNA and two imaging mass cytometry views Proportion of Parent (best individual view) and Type Proportions (worst individual view) will be included.
+
+Firstly, `"merge"` combination mode is used, which simply concatenates the features independently chosen for each view. (8 minutes)
+
+```{r, warning = FALSE}
+coxMergePredicts <- crossValidate(METABRIC[forMerge], c("timeRFS", "eventRFS"), multiViewMethod = "merge",
+                                  extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))),
+                                  selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20)
+performancePlot(coxMergePredicts, orderingList = list("Assay Name" = "performanceDescending"))
+```
+
+Combining clinical data with an imaging mass cytometry view has the best overall performance and slightly better than either view alone.
+
+An alternative to simply concatenating features is to do prevalidation. Training and prediction is applied to each non-clinical view and the preiction is added as a column to the clinical data. Hence, each high-dimensional omics view become a single feature in the clinical data table. If omics views are indeed important they should out-compete clinical variables during feature selection.
+
+To perform prevalidation, specify `multiViewMethod = "prevalidation"` (17 minutes)
+
+```{r, warning = FALSE}
+coxPrevalPredicts <- crossValidate(METABRIC[forMerge], c("timeRFS", "eventRFS"),
+                     extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))),
+                     multiViewMethod = "prevalidation", nRepeats = 20,
+                     selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20)
+
+performancePlot(coxPrevalPredicts)
+```
+
+Examine the features selected for when RNA data augmented the clinical data.
+
+```{r}
+coxPrevalPredicts[[2]]
+distribution(coxPrevalPredicts[[2]], plot = FALSE)
+```
+
+The omics views did not outcompete the clinical variables in this scenario.
+
+## Summary
+
+Patient survival of them METRABRIC dataset was examined in a variety of ways. Given the cost and expertise required for generating omics data, the value of omics data over and above easily obtainable clinical data was not identified.
