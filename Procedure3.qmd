@@ -1,4 +1,4 @@
-# Procedure 3
+# Multi-Platform Precision Pathway Construction
 
 ## Introduction
 Procedure 3 aims to construct a multi-platform precision pathway for determining the prognostic outcome of melanoma patients. This mimics a clinical diagnostic pathway, where given the results of a diagnostic test, a confident decision may be made, or the patient may be referred to collect more data from a different platform. 

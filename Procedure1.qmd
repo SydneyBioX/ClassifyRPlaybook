@@ -1,4 +1,4 @@
-# Procedure 1
+# Comparing cross-validated results of two datasets
 
 ## Introduction
 
