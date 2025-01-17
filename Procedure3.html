@@ -102,6 +102,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<link href="site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/viz-1.8.2/viz.js"></script>
+<link href="site_libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="site_libs/grViz-binding-1.0.11/grViz.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -285,7 +290,11 @@ TCGA-WE-A8ZO                 4        Good         1        73</code></pre>
 </div>
 <p>This bubble plot visualises the summary created above. In a situation with more potential pathways, it would allow greater ease in selecting the best pathway to optimise cost and performance. Here, clinical-miRNA would be the preferred pathway due to its lower cost while achieving the same balanced accuracy.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>flow <span class="ot">=</span> <span class="fu">flowchart</span>(pp, <span class="st">"clinical-miRNA_pair"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flowchart</span>(pp, <span class="st">"clinical-miRNA_pair"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="grViz html-widget html-fill-item" id="htmlwidget-1d61e2aed6f0571f0767" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-1d61e2aed6f0571f0767">{"x":{"diagram":"digraph {\n\ngraph [rankdir = \"LR\"]\n\n\n\n  \"1\" [label = \"clinical\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#86C57C\", fontname = \"helvetica\"] \n  \"2\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#ACCEE0\", fontname = \"helvetica\"] \n  \"3\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"4\" [label = \"miRNA_pair\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#86C57C\", fontname = \"helvetica\"] \n  \"5\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#ACCEE0\", fontname = \"helvetica\"] \n  \"6\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"7\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#F47F72\", fontname = \"helvetica\"] \n  \"8\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#F47F72\", fontname = \"helvetica\"] \n\"1\"->\"2\" [fontname = \"helvetica\", label = \"42% (26)\"] \n\"1\"->\"3\" [fontname = \"helvetica\", label = \"27% (17)\"] \n\"1\"->\"8\" [fontname = \"helvetica\", label = \"31% (19)\"] \n\"3\"->\"4\" [fontname = \"helvetica\", fontname = \"helvetica\"] \n\"4\"->\"5\" [fontname = \"helvetica\", label = \"26% (16)\"] \n\"4\"->\"6\" [fontname = \"helvetica\", label = \"0% (0)\"] \n\"4\"->\"7\" [fontname = \"helvetica\", label = \"2% (1)\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
 </div>
 <p>Given that clinical-miRNA is the selected pathway, this function creates a flowchart to show the stepwise process for determining melanoma prognosis. Clinical data is first used to classify patients into three prognosis groups: • Good prognosis: 44% of patients (27 out of total 62). • Uncertain prognosis: 21% of patients (13 out of 62) • Poor prognosis: 35% of patients (22 out of 62). Thus, clinical data alone classifies 71% of patients (Good + Poor groups), while 21% requiring further assessment.</p>
 <p>For the Uncertain prognosis group (13 patients), additional analysis using miRNA pair data refines the classification: • Good prognosis: 19% (12 patients) are identified as “Good.” • Uncertain prognosis: 0% (0 patients) remain “Uncertain.” • Poor prognosis: 2% (1 patient) is reclassified as “Poor.” This is why a potential pathway incorporating clinical, mRNA, and miRNA data was not considered, as the first two datasets alone provided a prognosis outcome for all individuals.</p>
