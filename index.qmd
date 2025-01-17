@@ -1,9 +1,21 @@
 # Overview
 
-## Welcome!
+## **Precision medicine and the need for advanced classification tools**
 
-text
+Precision medicine is a personalised approach to healthcare that tailors prevention, diagnosis, and treatment to an individual’s unique characteristics such as genetics, environment, lifestyle, and molecular data. By integrating diverse data types, the ultimate goal of precision medicine is to deliver the right decision or treatment to the right patient at the right time. While this has driven the development of complex classification strategies, realising this vision relies on robust evaluation of model performance at both cohort and patient levels. 
 
-## ummm
+### **What is ClassifyR?**
 
-more text
+This playbook presents **ClassifyR,** a comprehensive machine learning framework tailored for multi-omics classification problems in a precision medicine context. ClassifyR was first introduced in 2015 as a tool for assessing classification performance in omics research, particularly evaluating feature selection approaches in transcriptomics (Strbenac et al., 2015). It provides systematic comparison of predictive models, emphasising accuracy, stability and interpretability. While machine learning evaluation frameworks such as caret and mlr in R and scikit-learn in Python provide general-purpose machine learning frameworks, they lack specific capabilities for pre-processing, feature selection, feature interrogation, multi-omic integration and cross-platform performance evaluation. Standardising these procedures into a unified framework can facilitate more systematic and robust evaluations. Thus, ClassifyR distinguishes itself in multiple ways:
+
+-   **Bioconductor ecosystem integration**: ClassifyR is interoperable with established omics data structures in the Bioconductor Project, ensuring seamless access to single-cell, multi-omics, and spatial technologies.
+
+-   **Full cross-validation workflow**: The package performs comprehensive cross-validation by including feature selection and hyperparameter tuning within the cross-validation procedure, which is essential for handling large-scale omics datasets.
+
+-   **Cross-dataset and cross-modality validation**: Models can be both constructed and evaluated across cohorts and omics platforms, addressing issues of reproducibility and transferability.
+
+-   **Precision medicine focus**: ClassifyR includes frameworks for assessing model appropriateness at an individual patient level which is crucial for evaluating which model or modality is appropriate for which patient.
+
+By addressing these critical gaps, ClassifyR enables researchers to explore complex disease mechanisms, optimise diagnostic workflows, and guide treatment strategies in precision medicine.
+
+\

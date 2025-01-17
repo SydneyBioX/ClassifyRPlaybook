@@ -1,6 +1,6 @@
 # Procedure 3
 
-## Intro
+## Introduction
 Procedure 3 aims to construct a multi-platform precision pathway for determining the prognostic outcome of melanoma patients. This mimics a clinical diagnostic pathway, where given the results of a diagnostic test, a confident decision may be made, or the patient may be referred to collect more data from a different platform. 
 
 For this analysis, clinical data in addition to sequencing data from two platforms are employed for 62 samples and the data is accessible at Melanoma Explorer53. The first is an mRNA dataset assayed using Sentrix Human-6 v3 Expression BeadChips (Illumina, San Diego, CA). The second is a microRNA dataset with expression profiling performed using Agilent Technologies' microRNA platform (version 16, Agilent Technologies, Santa Clara, CA). The prognosis outcome is classified as "Good" if survival is greater than 4 years from the date of tumor banking and “Poor” if survival is less than 1 year from the date of tumor banking. Patients who do not match a “Good” or “Poor” prognosis are excluded from analysis. 
