@@ -44,6 +44,7 @@ sapply(METABRIC, dim)
 The number of features vary from 10 to 2000 for 165 patients. Next, look more closely at clinical data.
 
 [Timing \~ 0.055s]{style="color: grey;"}
+
 ```{r}
 head(METABRIC[["clinical"]])
 table(METABRIC[["clinical"]][, "Lymph.Nodes.Positive"])
@@ -80,6 +81,7 @@ forMerge <- c("clinical", "RNA Microarray", "Type Proportions", "Type Pairs Colo
 The most accurate view is Proportion of Parent but using only the freely available clinical data is qualitatively the same as omics. It is also interesting to observe that protein assay has better predicted performance although it has about a hundred times less features to use than RNA does.
 
 [Timing \~ 26s]{style="color: grey;"}
+
 ```{r}
 perSampleC <- samplesMetricMap(coxPredicts[c(1:3, 7)], showXtickLabels = FALSE)
 ```
@@ -108,6 +110,7 @@ An alternative to simply concatenating features is to do prevalidation. Training
 To perform prevalidation, specify `multiViewMethod = "prevalidation"` (17 minutes)
 
 [Timing \~ 46.6mins]{style="color: grey;"}
+
 ```{r, warning = FALSE}
 coxPrevalPredicts <- crossValidate(METABRIC[forMerge], c("timeRFS", "eventRFS"),
                      extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))),
@@ -120,6 +123,7 @@ performancePlot(coxPrevalPredicts)
 Examine the features selected for when RNA data augmented the clinical data.
 
 [Timing \~ 0.03s]{style="color: grey;"}
+
 ```{r}
 coxPrevalPredicts[[2]]
 distribution(coxPrevalPredicts[[2]], plot = FALSE)
