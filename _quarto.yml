@@ -11,6 +11,7 @@ book:
   chapters:
     - index.qmd
     - Procedure1.qmd
+    - Procedure2.qmd
     - Procedure3.qmd
   navbar:
     logo: images/USydLogo.svg
