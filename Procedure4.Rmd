@@ -1,0 +1,55 @@
+# Procedure 4
+
+The transferability of biomarkers from one patient population to another is often difficult to fully capture. Here we present three options for first assessing and then building transferable models from gene expression data.
+
+## Intro
+
+### Criss-cross validate
+
+Let's suppose you want to assess how biomarkers selected from one population relate to another. In typical fashion you may build a model on one dataset through some cross-validation strategy and then attempt to predict the outcome of the paitent population in teh other cohort. This is of course rather procedural. Hence, criss-cross validate. A technique that performs a cross validation model building procedure on one dataset or group of patients and then applies this model to the other datasets you have collected. This procedure is repeated for n datasets.
+
+We will use the recently published PROMAD database as a quick and easy way to collect 
+
+```{r}
+library(readr)
+library(tidyverse)
+promad_data <- readRDS("./data/promad_datasets.rds")
+```
+
+```{r}
+set.seed(51773)
+setwd("~/Desktop/projects/ClassifyR/ClassifyR")  
+library(ClassifyR)
+source("R/crissCrossValidate.R")
+ccv = crissCrossValidate(measurements = promad_data$measurements, 
+                         outcome = promad_data$outcome,
+                         performanceType = "AUC", runTOP = TRUE)
+
+crissCrossPlot(ccv, includeValues = TRUE, showResubMetric = FALSE)
+```
+
+```{r}
+library(TOP)
+
+top_measurements <- promad_data$measurements
+top_outcomes <- promad_data$outcome
+top_outcomes <- lapply(top_outcomes, function(y) {
+  relevel(y, ref = "Control") 
+})
+allLev <- levels(factor(unlist(top_outcomes)))
+print(allLev) # [1] "AR" "Control"
+
+topfeatures <- TOP::filterFeatures(top_measurements, top_outcomes,
+                                               nFeatures = 50,
+                                               contrast = paste(allLev[2], "-", allLev[1])) 
+trainData <- lapply(top_measurements, function(x) x[, topfeatures, drop = FALSE])
+trainOuts <- top_outcomes
+testData  <- top_measurements[[4]][, topfeatures, drop = FALSE]
+testOuts  <- top_outcomes[[4]]
+
+model <- TOP::TOP_model(trainData, trainOuts)
+predictedProb <- TOP::predict_TOP(model$models, testData) # numeric vector
+
+boxplot(predictedProb ~ testOuts, col = c("red", "blue"), main = "Predicted probabilities", xlab = "Outcome", ylab = "Predicted probability")
+```
+
