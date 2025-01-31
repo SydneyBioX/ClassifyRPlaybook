@@ -188,7 +188,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">3.1</span> Introduction</a></li>
   <li><a href="#setting-up-the-environment-and-data-objects" id="toc-setting-up-the-environment-and-data-objects" class="nav-link" data-scroll-target="#setting-up-the-environment-and-data-objects"><span class="header-section-number">3.2</span> Setting up the environment and data objects</a></li>
   <li><a href="#model-building-and-evaluation" id="toc-model-building-and-evaluation" class="nav-link" data-scroll-target="#model-building-and-evaluation"><span class="header-section-number">3.3</span> Model Building and Evaluation</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">3.4</span> Summary</a></li>
   </ul>
 </nav>
     </div>
@@ -214,10 +213,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>ClassifyR implements a variety of ways to evaluate the classifiability of samples from multiple views. A view could be an omics assay or it could be a particular metafeature generation of a particular data set.</p>
 <section id="introduction" class="level2" data-number="3.1">
 <h2 data-number="3.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">3.1</span> Introduction</h2>
-<p>In this case study, both different assays and different metafeatures will be demonstrated of the widely-known METABRIC breast cancer data set. These have been pre-generated. Briefly,</p>
+<p>Procedure 2 aims to investigate whether individual data views serve as the best predictors of breast cancer outcomes, or if integrating multiple views improve predictive accuracy. A view could be an omics assay or a particular metafeature generated from a particular data set.</p>
+<p>In this analysis, the METABRIC breast cancer data set will be used for 165 samples with no detected lymph node metastasis. Different omics assays and pre-generated views will be utilised:</p>
 <ul>
 <li>Clinical: Contains the outcome of interest (recurrence-free survival) as well as covariates that could predict it, such as tumour size and grade.</li>
 <li>RNA abundance: This was measured by microarrays. Quantile normalisation and prove reannotation was made by cBioPortal. Top 2000 highly-variable genes are used for illustration.</li>
@@ -227,123 +226,62 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Type Protein Mean</strong>: For each cell type, the average abundance of each feature in each sample.</li>
 <li><strong>Type Pairs Colocated</strong>: For each pair of cell types, a score of association using their X and Y coordinates based on L curve.</li>
 <li><strong>Colocated in Regions</strong>: k-means clustering-based definition of regions and spatial association within them.</li>
-<li><strong>Proportions of Parent</strong>: Based on HOPACH hierarchical clustering, the proportion of a cell type to its parent type.</li>
+<li><strong>Proportion of Parent</strong>: Based on HOPACH hierarchical clustering, the proportion of a cell type to its parent type.</li>
 </ul></li>
 </ul>
-<p>The subset of samples which have no detected lymph node metastasis, irrespective of stage, are used for subsequent analysis.</p>
 </section>
 <section id="setting-up-the-environment-and-data-objects" class="level2" data-number="3.2">
 <h2 data-number="3.2" class="anchored" data-anchor-id="setting-up-the-environment-and-data-objects"><span class="header-section-number">3.2</span> Setting up the environment and data objects</h2>
 <p><strong>1. Load the R packages into the R environment</strong></p>
-<p>The first step is to load the data and look at a few records (2 minutes).</p>
-<p><span style="color: grey;">Timing ~ 6.5s</span></p>
+<p><span style="color: grey;">Timing ~ 6.6s</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ClassifyR)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><code>ClassifyR</code> is used to perform all the demonstrated analyses below.</p>
 <p><strong>2. Import preprocessed datasets for analysis</strong></p>
-<p><span style="color: grey;">Timing ~ 0.057s</span></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>METABRIC <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure2/METABRICviews.rds"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(METABRIC, dim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     clinical RNA Microarray Type Proportions Type Protein Mean
-[1,]      165            165              165               165
-[2,]       30           2000               22               858
-     Type Pairs Colocated Colocated in Regions Proportion of Parent
-[1,]                  165                  165                  165
-[2,]                  484                   10                   55</code></pre>
-</div>
-</div>
-<p>The number of features vary from 10 to 2000 for 165 patients. Next, look more closely at clinical data.</p>
 <p><span style="color: grey;">Timing ~ 0.055s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(METABRIC[[<span class="st">"clinical"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>        METABRIC.ID MATCHED.NORMAL.METABRIC.ID Cohort Age.At.Diagnosis
-MB-0002     MB-0002                    MB-0003      1            43.19
-MB-0010     MB-0010                    MB-0011      1            78.77
-MB-0035     MB-0035                    MB-0034      1            84.22
-MB-0060     MB-0060                    MB-0061      1            45.43
-MB-0081     MB-0081                    MB-0080      1            49.61
-MB-0107     MB-0107                    MB-0676      1            65.59
-        Breast.Tumour.Laterality Date.Of.Diagnosis Last.Followup.Status   NPI
-MB-0002                        r           2000/12                    a 4.020
-MB-0010                        l           2001/03               d-d.s. 4.062
-MB-0035                        l           2001/04               d-d.s. 3.056
-MB-0060                        r           2001/07                    a 4.046
-MB-0081                        r           2001/08                    a 3.048
-MB-0107                        r           2001/12                    a 4.036
-        ER.Status Inferred.Menopausal.State Lymph.Nodes.Positive
-MB-0002       pos                       pre                    0
-MB-0010       pos                      post                    0
-MB-0035       neg                      post                    0
-MB-0060       pos                       pre                    0
-MB-0081       pos                       pre                    0
-MB-0107       pos                      post                    0
-           Breast.Surgery    CT    HT    RT Grade Size Histological.Type Stage
-MB-0002 BREAST CONSERVING NO/NA   TAM    CW     3   10               IDC     1
-MB-0010        MASTECTOMY NO/NA   TAM    CW     3   31               IDC     4
-MB-0035        MASTECTOMY NO/NA NO/NA NO/NA     2   28               ILC     2
-MB-0060 BREAST CONSERVING    AC   TAM    CW     3   23               IDC     2
-MB-0081 BREAST CONSERVING NO/NA GNRHA    CW     2   24               IDC     2
-MB-0107        MASTECTOMY NO/NA   TAM NO/NA     3   18               IDC     2
-        DeathBreast Death    T  TLR LR  TDR DR Complete.Rec.History metabricId
-MB-0002           0     0 2539 2539  0 2539  0                  YES    MB-0002
-MB-0010           1     1  234  234  0   88  1                  YES    MB-0010
-MB-0035           1     1 1088 1088  0 1088  0                  YES    MB-0035
-MB-0060           0     0 4226 4226  0 4226  0                  YES    MB-0060
-MB-0081           0     0 2085 2085  0 2085  0                  YES    MB-0081
-MB-0107           0     0 4741 4741  0 4741  0                  YES    MB-0107
-        timeRFS eventRFS
-MB-0002    2539        0
-MB-0010      88        1
-MB-0035    1088        1
-MB-0060    4226        0
-MB-0081    2085        0
-MB-0107    4741        0</code></pre>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>METABRIC <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/procedure2/METABRICviews.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(METABRIC[[<span class="st">"clinical"</span>]][, <span class="st">"Lymph.Nodes.Positive"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-  0 
-165 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>usefulFeatures <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Breast.Tumour.Laterality"</span>, <span class="st">"ER.Status"</span>, <span class="st">"Inferred.Menopausal.State"</span>,</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Grade"</span>, <span class="st">"Size"</span>, <span class="st">"Stage"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p><code>timeRFS</code> and <code>eventRFS</code> columns will form the outcomes to predict.</p>
-<p>Clinical data often has arbitrary sample identifiers, dates and other non-biological information which should not be used in model building. Define a set of useful features for further use.</p>
+<p>This command reads in the list of 7 preprocessed assays and views mentioned previously. They are named “clinical”, “RNA Microarray”, “Type Proportions”, “Type Protein Mean”, “Type Pairs Colocated”, “Colocated in Regions” and “Proportion of Parent”. They respectively contain 30, 2000, 22, 858, 484, 10 and 55 features for each of the 165 samples.</p>
 </section>
 <section id="model-building-and-evaluation" class="level2" data-number="3.3">
 <h2 data-number="3.3" class="anchored" data-anchor-id="model-building-and-evaluation"><span class="header-section-number">3.3</span> Model Building and Evaluation</h2>
-<p>Examine whether any view alone is the best predictor or whether combinations of views add value to accuracy. Note that any parameters to the <code>prepare</code> element of <code>extraParams</code> will be passed to the <code>prepareData</code> function.</p>
+<p>Here, models will be built by 3 different methods of assay and view integrations: step 3 - individual assays, step 4 - merging assays and step 5 - prevalidation.</p>
 <p><strong>3. Individual Assays</strong></p>
-<p><span style="color: grey;">Timing ~ 120s</span></p>
-<p>The first analysis fits a penalised Cox proportional hazards model to each assay alone. Remember that the default scheme of <code>crossValidate</code> is 5-fold cross-validation repeated 20 times.</p>
+<p><span style="color: grey;">Timing ~ 82s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2024</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>coxPredicts <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC, <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>),</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">20</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))))</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>orderViews <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"clinical"</span>, <span class="st">"RNA Microarray"</span>, <span class="st">"Type Proportions"</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Proportion of Parent"</span>, <span class="st">"Colocated in Regions"</span>, <span class="st">"Type Protein Mean"</span>, <span class="st">"Type Pairs Colocated"</span>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxPredicts, <span class="at">orderingList =</span> <span class="fu">list</span>(<span class="st">`</span><span class="at">Assay Name</span><span class="st">`</span> <span class="ot">=</span> orderViews)) <span class="sc">+</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>usefulFeatures <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Breast.Tumour.Laterality"</span>, <span class="st">"ER.Status"</span>, <span class="st">"Inferred.Menopausal.State"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"Grade"</span>, <span class="st">"Size"</span>, <span class="st">"Stage"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>coxPredicts <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC, <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">20</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                             <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The <code>set.seed(1)</code> command ensures that any subsequent operations involving randomness yield consistent results across runs.</p>
+<p>The next command selects only the biologically relevant features in the clinical data to be used later for model building, as there are arbitrary sample identifiers, dates and other non-biological information which should not be used</p>
+<p>The <code>crossValidate</code> function is then used to perform 5-fold cross-validation for 20 repeats, fitting a penalised Cox proportional hazards model to each assay individually. 20 CPU cores are used for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcomes here are <code>timeRFS</code> and <code>eventRFS</code>, 2 columns from <code>METABRIC[["clinical"]]</code>.</p>
+<p><span style="color: grey;">Timing ~ 1.5s</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxPredicts, <span class="at">orderingList =</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>)) <span class="sc">+</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in .local(results, ...): C-index not found in all elements of results.
+Calculating it now.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Procedure2_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="Procedure2_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>forMerge <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"clinical"</span>, <span class="st">"RNA Microarray"</span>, <span class="st">"Type Proportions"</span>, <span class="st">"Type Pairs Colocated"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The most accurate view is Proportion of Parent but using only the freely available clinical data is qualitatively the same as omics. It is also interesting to observe that protein assay has better predicted performance although it has about a hundred times less features to use than RNA does.</p>
-<p><span style="color: grey;">Timing ~ 26s</span></p>
+<p>This command generates a side-by-side boxplot of C-index for each individual assay by <code>performancePlot</code> to compare their classification performance. The most accurate view is Proportion of Parent, but interestingly, using just the freely available clinical data attains a similar performance. Further, the protein assay views also performed surprisingly well despite having about a hundred times less features to use than RNA does.</p>
+<p><span style="color: grey;">Timing ~ 22s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>perSampleC <span class="ot">&lt;-</span> <span class="fu">samplesMetricMap</span>(coxPredicts[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">7</span>)], <span class="at">showXtickLabels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(coxPredicts, <span class="at">showXtickLabels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in .local(results, ...): Sample C-index not found in all elements of
 results. Calculating it now.</code></pre>
@@ -355,36 +293,38 @@ results. Calculating it now.</code></pre>
 </figure>
 </div>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>TableGrob (2 x 1) "arrange": 2 grobs
+  z     cells    name                grob
+1 1 (2-2,1-1) arrange      gtable[layout]
+2 2 (1-1,1-1) arrange text[GRID.text.257]</code></pre>
 </div>
-<p>It is also worthwhile looking at per-sample C-index, which is simply the number of concordant pairs divided by the total number of feasible pairs of sample comparisons between the predicted risk score and the event-time recorded outcome.</p>
-<p><strong>4. Individual Assays</strong></p>
-<p><span style="color: grey;">Timing ~ 21.2mins</span></p>
-<p>Although it is possible to exhaustively combine all possible subsets of the seven views, the large number of box plots becomes difficult to interpret. Hence, clinical, RNA and two imaging mass cytometry views Proportion of Parent (best individual view) and Type Proportions (worst individual view) will be included.</p>
-<p>Firstly, <code>"merge"</code> combination mode is used, which simply concatenates the features independently chosen for each view. (8 minutes)</p>
+</div>
+<p><strong>4. Merged Assays</strong></p>
+<p><span style="color: grey;">Timing ~ 29mins</span></p>
+<p>Note: <code>Type Protein Mean</code> and <code>Type Proportions</code> have been removed for the following analysis to save run time.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>coxMergePredicts <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC[forMerge], <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>), <span class="at">multiViewMethod =</span> <span class="st">"merge"</span>,</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))),</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">20</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxMergePredicts, <span class="at">orderingList =</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>merge <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"clinical"</span>, <span class="st">"Colocated in Regions"</span>, <span class="st">"Proportion of Parent"</span>, <span class="st">"Type Pairs Colocated"</span>, <span class="st">"RNA Microarray"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>coxMergePredicts <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC[merge], <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>), <span class="at">multiViewMethod =</span> <span class="st">"merge"</span>, <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))), <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">20</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxMergePredicts, <span class="at">orderingList =</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Procedure2_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Procedure2_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="1440"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Combining clinical data with an imaging mass cytometry view has the best overall performance and slightly better than either view alone.</p>
-<p>An alternative to simply concatenating features is to do prevalidation. Training and prediction is applied to each non-clinical view and the preiction is added as a column to the clinical data. Hence, each high-dimensional omics view become a single feature in the clinical data table. If omics views are indeed important they should out-compete clinical variables during feature selection.</p>
-<p>To perform prevalidation, specify <code>multiViewMethod = "prevalidation"</code> (17 minutes)</p>
-<p><span style="color: grey;">Timing ~ 46.6mins</span></p>
+<p>The 3 commands used here are the same as for <code>individual assays</code> in step 3, with the only difference being the <code>merge</code> combination method used for the <code>multiViewMethod</code> argument in the second command to concatenate the independently selected features in each view. Other multiVewMethods include <code>prevalidation</code> and <code>PCA</code>. The produced plot suggests that combining clinical data with imaging mass cytometry views can improve performance. Specifically, the best performing combination used <code>clinical</code>, <code>Colocated in Regions</code> and <code>Type Pairs Colocated</code> to achieve a C-index which surpasses <code>Proportion of Parent</code>, the best performing individual assay. Hence, integrating multiple views have successfully improved prediction accuracy.</p>
+<p><span style="color: grey;">Timing ~ 95s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>coxPrevalPredicts <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC[forMerge], <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>),</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))),</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">multiViewMethod =</span> <span class="st">"prevalidation"</span>, <span class="at">nRepeats =</span> <span class="dv">20</span>,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">20</span>)</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxPrevalPredicts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(coxMergePredicts, <span class="at">showXtickLabels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in .local(results, ...): Sample C-index not found in all elements of
+results. Calculating it now.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -392,39 +332,13 @@ results. Calculating it now.</code></pre>
 </figure>
 </div>
 </div>
-</div>
-<p>Examine the features selected for when RNA data augmented the clinical data.</p>
-<p><span style="color: grey;">Timing ~ 0.03s</span></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>coxPrevalPredicts[[<span class="dv">2</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>An object of class 'ClassifyResult'.
-Characteristics:
-       characteristic                    value
-           Assay Name clinical, RNA Microarray
-      Classifier Name           CoxNet, CoxNet
-       Selection Name             CoxPH, CoxPH
-      multiViewMethod            prevalidation
- characteristicsLabel                     none
-     Cross-validation 20 Permutations, 5 Folds
-Features: List of length 39 of feature identifiers.
-Predictions: A data frame of 1280 rows.
-Performance Measures: None calculated yet.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">distribution</span>(coxPrevalPredicts[[<span class="dv">2</span>]], <span class="at">plot =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>allFeaturesText
-                    Grade  Breast.Tumour.Laterality Inferred.Menopausal.State 
-                     1.00                      0.87                      0.87 
-                    Stage                 ER.Status                      Size 
-                     0.87                      0.85                      0.82 </code></pre>
+<pre><code>TableGrob (2 x 1) "arrange": 2 grobs
+  z     cells    name                grob
+1 1 (2-2,1-1) arrange      gtable[layout]
+2 2 (1-1,1-1) arrange text[GRID.text.755]</code></pre>
 </div>
 </div>
-<p>The omics views did not outcompete the clinical variables in this scenario.</p>
-</section>
-<section id="summary" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="summary"><span class="header-section-number">3.4</span> Summary</h2>
-<p>Patient survival of them METRABRIC dataset was examined in a variety of ways. Given the cost and expertise required for generating omics data, the value of omics data over and above easily obtainable clinical data was not identified.</p>
 
 
 </section>
