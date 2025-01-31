@@ -50,7 +50,7 @@ The next command uses the `crossValidate` function to perform 5-fold cross-valid
 [Timing \~ 1.75s]{style="color: grey;"}
 
 ```{r warning = FALSE}
-performancePlot(classifyr_result)
+performancePlot(classifyr_result) + scale_fill_brewer(palette = "Set2")
 ```
 
 `performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.\
