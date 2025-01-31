@@ -4,27 +4,38 @@ The transferability of biomarkers from one patient population to another is ofte
 
 ## Intro
 
-### Criss-cross validate
+Procedure 4 demonstrates the transferability of biomarkers from one patient population to another using a pairwise cross-validation approach, which we refer to as *criss-cross validation*. This is a common challenge in bioinformatics, where a model built on one cohort may not generalize well to others due to differences in population structure, data-generation protocols, or confounding variables.
 
-Let's suppose you want to assess how biomarkers selected from one population relate to another. In typical fashion you may build a model on one dataset through some cross-validation strategy and then attempt to predict the outcome of the paitent population in teh other cohort. This is of course rather procedural. Hence, criss-cross validate. A technique that performs a cross validation model building procedure on one dataset or group of patients and then applies this model to the other datasets you have collected. This procedure is repeated for n datasets.
+Here, we introduce the function `crissCrossValidate`, which implements this pairwise validation for multiple datasets. In addition, we optionally demonstrate the *Transferable Omics Prediction (TOP)* approach (if you set `runTOP = TRUE`) for a leave-one-dataset-out framework that can further improve biomarker robustness. In this procedure, we use a simplified example dataset from the *PROMAD* atlas, which contains gene expression data from different organ transplant populations.
 
-We will use the recently published PROMAD database as a quick and easy way to collect 
+## Setting up the data
 
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=TRUE}
 library(readr)
 library(tidyverse)
+library(ClassifyR)
+
+# Load the PROMAD data
 promad_data <- readRDS("data/procedure4/promad_data.rds")
 ```
 
-```{r}
+What is in promad_data:
+	•	promad_data$measurements: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene.
+	•	promad_data$outcome: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
+
+### Pairwise cross-validation with crissCrossValidate
+
+Criss-cross validation is an approach where each dataset is used to train a model (or select features) while all other datasets are used for testing. This results in a matrix of performance measures, giving a quick glimpse at how well biomarkers transfer among multiple cohorts.
+
+```{r, message=FALSE, warning=FALSE, echo=TRUE}
 set.seed(51773)
-setwd("~/Desktop/projects/ClassifyR/ClassifyR")  
-library(ClassifyR)
-source("R/crissCrossValidate.R")
 ccv = crissCrossValidate(measurements = promad_data$measurements, 
                          outcome = promad_data$outcome,
                          performanceType = "AUC", runTOP = TRUE)
 
 crissCrossPlot(ccv, includeValues = TRUE, showResubMetric = FALSE)
 ```
-
+Interpretation of Results
+1.	Heatmap Rows: The dataset (cohort) from which features are selected or the model is trained.
+2.	Heatmap Columns: The dataset on which those selected features or model are tested.
+3.	Diagonal Cells: When showResubMetric = FALSE, the diagonal cells are set to NA (and may appear grayed out). Enabling showResubMetric = TRUE reveals self-prediction (resubstitution) performance, which typically inflates accuracy relative to true external validation.
