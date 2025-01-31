@@ -13,7 +13,7 @@ We will use the recently published PROMAD database as a quick and easy way to co
 ```{r}
 library(readr)
 library(tidyverse)
-promad_data <- readRDS("./data/promad_datasets.rds")
+promad_data <- readRDS("data/procedure4/promad_data.rds")
 ```
 
 ```{r}
