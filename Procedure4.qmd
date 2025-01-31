@@ -28,28 +28,3 @@ ccv = crissCrossValidate(measurements = promad_data$measurements,
 crissCrossPlot(ccv, includeValues = TRUE, showResubMetric = FALSE)
 ```
 
-```{r}
-library(TOP)
-
-top_measurements <- promad_data$measurements
-top_outcomes <- promad_data$outcome
-top_outcomes <- lapply(top_outcomes, function(y) {
-  relevel(y, ref = "Control") 
-})
-allLev <- levels(factor(unlist(top_outcomes)))
-print(allLev) # [1] "AR" "Control"
-
-topfeatures <- TOP::filterFeatures(top_measurements, top_outcomes,
-                                               nFeatures = 50,
-                                               contrast = paste(allLev[2], "-", allLev[1])) 
-trainData <- lapply(top_measurements, function(x) x[, topfeatures, drop = FALSE])
-trainOuts <- top_outcomes
-testData  <- top_measurements[[4]][, topfeatures, drop = FALSE]
-testOuts  <- top_outcomes[[4]]
-
-model <- TOP::TOP_model(trainData, trainOuts)
-predictedProb <- TOP::predict_TOP(model$models, testData) # numeric vector
-
-boxplot(predictedProb ~ testOuts, col = c("red", "blue"), main = "Predicted probabilities", xlab = "Outcome", ylab = "Predicted probability")
-```
-
