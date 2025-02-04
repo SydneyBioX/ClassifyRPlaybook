@@ -1,6 +1,6 @@
 # Procedure 4
 
-The transferability of biomarkers from one patient population to another is often difficult to fully capture. Here we present three options for first assessing and then building transferable models from gene expression data.
+The transferability of biomarkers from one patient population to another is often difficult to fully capture. Here we present two complementary approaches to assess and build transferable models from gene expression data: a pairwise cross-validation method (criss-cross validation) and an optional leave-one-dataset-out framework using Transferable Omics Prediction (TOP).
 
 ## Intro
 
