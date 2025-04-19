@@ -36,8 +36,8 @@ This command reads in a preprocessed MultiAssayExperiment containing two assays:
 
 ```{r warning = FALSE}
 set.seed(1)
-pp <- precisionPathwaysTrain(mel_mae, "Outcome")
-pp <- calcCostsAndPerformance(pp, setNames(c(0, 12400, 8000), c("Clinical", "RNA_pair", "miRNA_pair")))
+pp <- precisionPathwaysTrain(mel_mae, "Outcome", nCores = 16)
+pp <- calcCostsAndPerformance(pp, setNames(c(0, 700, 400), c("Clinical", "RNA_pair", "miRNA_pair")))
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs. The second command trains a multi-platform precision pathway using the two assays given the prognostic outcomes in the "Outcome" column in `colData(mel_mae)` Finally, the costs and performance of each potential pathway is calculated. Here, the cost of using clinical, mRNA and miRNA data have respectively been approximated to \$0, \$12400 and \$8000.
