@@ -16,26 +16,23 @@ library(tidyverse)
 library(ClassifyR)
 
 # Load the PROMAD data
-promad_data <- readRDS("data/procedure4/promad_data.rds")
+promad <- readRDS("data/procedure4/promad.rds")
 ```
 
-What is in promad_data:
-	•	promad_data$measurements: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene.
-	•	promad_data$outcome: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
+What is in promad: • promad$measurements: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene.
+    •   promad$outcome: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
 
 ### Pairwise cross-validation with crissCrossValidate
 
 Criss-cross validation is an approach where each dataset is used to train a model (or select features) while all other datasets are used for testing. This results in a matrix of performance measures, giving a quick glimpse at how well biomarkers transfer among multiple cohorts.
 
 ```{r, message=FALSE, warning=FALSE, echo=TRUE}
-set.seed(51773)
-ccv = crissCrossValidate(measurements = promad_data$measurements, 
-                         outcome = promad_data$outcome,
+set.seed(1)
+CCV <- crissCrossValidate(measurements = promad$measurements, 
+                         outcome = promad$outcome,
                          performanceType = "AUC", runTOP = TRUE)
 
-crissCrossPlot(ccv, includeValues = TRUE, showResubMetric = FALSE)
+crissCrossPlot(CCV, includeValues = TRUE, showResubMetric = FALSE)
 ```
-Interpretation of Results
-1.	Heatmap Rows: The dataset (cohort) from which features are selected or the model is trained.
-2.	Heatmap Columns: The dataset on which those selected features or model are tested.
-3.	Diagonal Cells: When showResubMetric = FALSE, the diagonal cells are set to NA (and may appear grayed out). Enabling showResubMetric = TRUE reveals self-prediction (resubstitution) performance, which typically inflates accuracy relative to true external validation.
+
+Interpretation of Results 1. Heatmap Rows: The dataset (cohort) from which features are selected or the model is trained. 2. Heatmap Columns: The dataset on which those selected features or model are tested. 3. Diagonal Cells: When showResubMetric = FALSE, the diagonal cells are set to NA (and may appear grayed out). Enabling showResubMetric = TRUE reveals self-prediction (resubstitution) performance, which typically inflates accuracy relative to true external validation.

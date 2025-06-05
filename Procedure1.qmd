@@ -23,10 +23,10 @@ library(ClassifyR)
 [Timing \~ 0.04s]{style="color: grey;"}
 
 ```{r}
-ghist_mae <- readRDS("data/procedure1/ghist_multiassayexperiment.rds")
+ghistMAE <- readRDS("data/procedure1/ghist_multiassayexperiment.rds")
 ```
 
-This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named bulk_gene_expression and histologically_predicted_gene_expression.
+This command reads in a MultiAssayExperiment with two assays. The first is bulk gene expression data for 54 breast cancer individuals and the second is bulk gene expression as predicted from histological images of the same individuals. They are respectively named gene_expression and histology_inferred.
 
 ## Cross-validated Classification
 
@@ -36,12 +36,12 @@ This command reads in a MultiAssayExperiment with two assays. The first is bulk 
 
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
-classifyr_result <- crossValidate(ghist_mae, outcome = "subtype", nFolds = 5, nRepeats = 100, nCores = 5)
+classifyResult <- crossValidate(ghistMAE, outcome = "subtype", nFolds = 5, nRepeats = 100, nCores = 5)
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
 
-The next command uses the `crossValidate` function to perform 5-fold cross-validation with the automatically selected RandomForest classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcome here is "subtype", a column from `colData(ghist_mae)` containing the two breast cancer subtypes to be predicted.\
+The next command uses the `crossValidate` function to perform 5-fold cross-validation with the automatically selected RandomForest classifier on both datasets. This process is repeated 100 times and utilizes 5 CPU cores for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcome here is "subtype", a column from `colData(ghist_mae)` containing the two breast cancer subtypes to be predicted.
 
 ## Classification Evaluation
 
@@ -50,14 +50,15 @@ The next command uses the `crossValidate` function to perform 5-fold cross-valid
 [Timing \~ 1.75s]{style="color: grey;"}
 
 ```{r warning = FALSE}
-performancePlot(classifyr_result) + scale_fill_brewer(palette = "Set2")
+performancePlot(classifyResult)
 ```
 
-`performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.\
+`performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.
+
 Both methods perform comparably in terms of median balanced accuracy and also demonstrate similar distributions of performance as seen from the comparable interquartile range and range. There does not appear to be much difference in the classification performance of both assays.
 
 ```{r warning = FALSE}
-samplesMetricMap(classifyr_result)
+samplesMetricMap(classifyResult)
 ```
 
 `samplesMetricMap` outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1\] when classified by the expression data as opposed to the histological data.

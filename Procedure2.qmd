@@ -50,9 +50,8 @@ Here, models will be built by 3 different methods of assay and view integrations
 set.seed(1)
 usefulFeatures <- c("Breast.Tumour.Laterality", "ER.Status", "Inferred.Menopausal.State",
                     "Grade", "Size", "Stage")
-coxPredicts <- crossValidate(METABRIC, c("timeRFS", "eventRFS"),
-                             selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20,
-                             extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))))
+coxCV <- crossValidate(METABRIC, c("timeRFS", "eventRFS"), selectionMethod = "CoxPH", classifier = "CoxNet",
+                       nCores = 20, extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))))
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
@@ -62,39 +61,39 @@ The next command selects only the biologically relevant features in the clinical
 The `crossValidate` function is then used to perform 5-fold cross-validation for 20 repeats, fitting a penalised Cox proportional hazards model to each assay individually. 20 CPU cores are used for parallel processing to speed up classification. The type of classifier, number of folds, repeats and cores used can be adjusted as wished for different analyses. The outcomes here are `timeRFS` and `eventRFS`, 2 columns from `METABRIC[["clinical"]]`.
 
 [Timing \~ 1.5s]{style="color: grey;"}
+
 ```{r}
-performancePlot(coxPredicts, orderingList = list("Assay Name" = "performanceDescending")) +
+performancePlot(coxCV, orderingList = list("Assay Name" = "performanceDescending")) +
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
 ```
 
 This command generates a side-by-side boxplot of C-index for each individual assay by `performancePlot` to compare their classification performance. The most accurate view is Proportion of Parent, but interestingly, using just the freely available clinical data attains a similar performance. Further, the protein assay views also performed surprisingly well despite having about a hundred times less features to use than RNA does.
 
 [Timing \~ 22s]{style="color: grey;"}
-```{r}
-samplesMetricMap(coxPredicts, showXtickLabels = FALSE)
-```
 
+```{r}
+samplesMetricMap(coxCV, showXtickLabels = FALSE)
+```
 
 **4. Merged Assays**
 
 [Timing \~ 29mins]{style="color: grey;"}
 
-Note: `Type Protein Mean` and `Type Proportions` have been removed for the following analysis to save run time. 
+Note: `Type Protein Mean` and `Type Proportions` have been removed for the following analysis to save run time.
 
 ```{r, warning = FALSE, fig.width = 15}
 set.seed(1)
-merge <- c("clinical", "Colocated in Regions", "Proportion of Parent", "Type Pairs Colocated", "RNA Microarray")
-coxMergePredicts <- crossValidate(METABRIC[merge], c("timeRFS", "eventRFS"), multiViewMethod = "merge", extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))), selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20)
+xOrder <- list("Assay Name" = "performanceDescending")
+merge <- c("clinical", "Domain Proportions", "Proportions of Parent", "Colocalisation", "RNA Microarray")
+coxMergeCV <- crossValidate(METABRIC[merge], c("timeRFS", "eventRFS"), multiViewMethod = "merge", extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))), selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20)
 
-performancePlot(coxMergePredicts, orderingList = list("Assay Name" = "performanceDescending"))
+performancePlot(coxMergeCV, orderingList = list("Assay Name" = "performanceDescending"))
 ```
 
-The 3 commands used here are the same as for `individual assays` in step 3, with the only difference being the `merge` combination method used for the `multiViewMethod` argument in the second command to concatenate the independently selected features in each view. Other multiVewMethods include `prevalidation` and `PCA`.
-The produced plot suggests that combining clinical data with imaging mass cytometry views can improve performance. Specifically, the best performing combination used `clinical`, `Colocated in Regions` and `Type Pairs Colocated` to achieve a C-index which surpasses `Proportion of Parent`, the best performing individual assay. Hence, integrating multiple views have successfully improved prediction accuracy.
+The 3 commands used here are the same as for `individual assays` in step 3, with the only difference being the `merge` combination method used for the `multiViewMethod` argument in the second command to concatenate the independently selected features in each view. Other multiVewMethods include `prevalidation` and `PCA`. The produced plot suggests that combining clinical data with imaging mass cytometry views can improve performance. Specifically, the best performing combination used `clinical`, `Colocated in Regions` and `Type Pairs Colocated` to achieve a C-index which surpasses `Proportion of Parent`, the best performing individual assay. Hence, integrating multiple views have successfully improved prediction accuracy.
 
 [Timing \~ 95s]{style="color: grey;"}
 
 ```{r}
-samplesMetricMap(coxMergePredicts, showXtickLabels = FALSE)
+samplesMetricMap(coxMergeCV, showXtickLabels = FALSE)
 ```
-
