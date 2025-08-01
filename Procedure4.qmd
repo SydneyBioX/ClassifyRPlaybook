@@ -19,18 +19,22 @@ library(ClassifyR)
 promad <- readRDS("data/procedure4/promad.rds")
 ```
 
-What is in promad: - `measurements`: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene.
-- `outcome`: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
+What is in promad: - `measurements`: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene. - `outcome`: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
 
 ### Pairwise cross-validation with crissCrossValidate
 
 Criss-cross validation is an approach where each dataset is used to train a model (or select features) while all other datasets are used for testing. This results in a matrix of performance measures, giving a quick glimpse at how well biomarkers transfer among multiple cohorts.
 
 ```{r, message=FALSE, warning=FALSE, echo=TRUE}
-set.seed(1)
-CCV <- crissCrossValidate(measurements = promad$measurements, 
-                         outcome = promad$outcome,
-                         performanceType = "AUC", runTOP = TRUE)
+set.seed(51773)
+CCV <- crissCrossValidate(measurements = promad_list$measurements, 
+                         outcome = promad_list$outcome,
+                         performanceType = "AUC", 
+                         runTOP = TRUE, 
+                         classifier = "LASSOGLM",
+                         nFolds = 5, 
+                         nRepeats = 10,
+                         nFeatures = 100)
 
 crissCrossPlot(CCV, includeValues = TRUE, showResubMetric = FALSE)
 ```
