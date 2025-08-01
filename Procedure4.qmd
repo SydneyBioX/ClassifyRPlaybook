@@ -19,8 +19,8 @@ library(ClassifyR)
 promad <- readRDS("data/procedure4/promad.rds")
 ```
 
-What is in promad: • promad$measurements: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene.
-    •   promad$outcome: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
+What is in promad: - `measurements`: A named list of matrices (or data frames), where each element corresponds to one cohort’s gene expression data. Each row represents a patient, and each column represents a gene.
+- `outcome`: A named list of outcome vectors (e.g., factors for classification). Each element corresponds to one cohort, and the order of the outcomes should match the order of the gene expression data.
 
 ### Pairwise cross-validation with crissCrossValidate
 
