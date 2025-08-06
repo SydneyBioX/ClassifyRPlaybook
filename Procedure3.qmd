@@ -38,7 +38,7 @@ This command reads in a preprocessed MultiAssayExperiment containing two assays:
 ```{r warning = FALSE}
 set.seed(1)
 costs <- setNames(c(0, 700, 400), c("Clinical", "RNA_pair", "miRNA_pair"))
-pathways <- precisionPathwaysTrain(melanomaMAE, "Outcome")
+pathways <- precisionPathwaysTrain(melanomaMAE, "Outcome", mode = "combinatorial", nCores = 8)
 pathways <- calcCostsAndPerformance(pathways, costs)
 ```
 

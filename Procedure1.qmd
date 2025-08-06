@@ -36,7 +36,7 @@ This command reads in a MultiAssayExperiment with two assays. The first is bulk 
 
 ```{r warning = FALSE, message = FALSE}
 set.seed(1)
-classifyResult <- crossValidate(ghistMAE, outcome = "subtype", nFolds = 5, nRepeats = 100, nCores = 5)
+classifyResult <- crossValidate(ghistMAE, outcome = "subtype", nFolds = 5, nRepeats = 100, nCores = 8)
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs.
@@ -53,12 +53,26 @@ The next command uses the `crossValidate` function to perform 5-fold cross-valid
 performancePlot(classifyResult)
 ```
 
+```{r echo = FALSE, warning = FALSE}
+library(svglite)
+svglite("~/ClassifyRPlaybook/publishFigures/Figure2a.svg", height = 3, width = 3.5)
+performancePlot(classifyResult, fontSizes = c(7, 6, 5, 5))
+dev.off()
+```
+
 `performancePlot` outputs a side-by-side boxplot of the balanced accuracies for each dataset.
 
 Both methods perform comparably in terms of median balanced accuracy and also demonstrate similar distributions of performance as seen from the comparable interquartile range and range. There does not appear to be much difference in the classification performance of both assays.
 
 ```{r warning = FALSE}
-samplesMetricMap(classifyResult)
+samplesMetricMap(classifyResult, showXtickLabels = FALSE)
+```
+
+```{r echo = FALSE, warning = FALSE}
+library(svglite)
+svglite("~/ClassifyRPlaybook/publishFigures/Figure2b.svg", height = 3, width = 3.5)
+samplesMetricMap(classifyResult, showXtickLabels = FALSE, fontSizes = c(7, 6, 5, 5, 5))
+dev.off()
 ```
 
 `samplesMetricMap` outputs a heatmap showing the classification accuracy for each of 100 repeats in each sample. A greater proportion of samples show high sample accuracies (0.8,1\] when classified by the expression data as opposed to the histological data.
