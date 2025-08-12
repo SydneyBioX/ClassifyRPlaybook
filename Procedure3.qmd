@@ -7,7 +7,7 @@ Procedure 3 aims to construct a multi-platform precision pathway for determining
 For this analysis, two cohorts are used. Both have clinical data, and miRNA and mRNA omics data.
 
 1. The Cancer Genome Atlas (T.C.G.A.): 62 patients. Both omics modalities use high-throughput sequencing.
-2. Melanoma Institute of Australia (M.I.A.): 45 patients. Both omics modalities use probe-based microarrays.
+2. Melanoma Institute of Australia (M.I.A.): 42 patients. Both omics modalities use probe-based microarrays.
 
 The prognosis outcome is classified as "Good" if survival is greater than 4 years from the date of tumor banking and “Poor” if survival is less than 1 year from the date of tumor banking. Patients who do not match a “Good” or “Poor” prognosis are excluded from analysis.
 
@@ -43,14 +43,14 @@ These commands read in a preprocessed MultiAssayExperiment containing two assays
 [Timing \~ 260s]{style="color: grey;"}
 
 ```{r warning = FALSE}
-set.seed(1)
-costs <- setNames(c(50, 700, 400), c("clinical", "RNA", "miRNA"))
+set.seed(2025)
 pathways <- precisionPathwaysTrain(melanomaTCGA, "Outcome", mode = "combinatorial", nCores = 8)
 ```
 
 The `set.seed(1)` command ensures that any subsequent operations involving randomness yield consistent results across runs. The second command trains multi-platform precision pathways using the two assays given the prognostic outcomes in the "Outcome" column in `colData(melanomaTCGA)`.
 
-```{r warning = FALSE}
+```{r warning = FALSE, message = FALSE}
+costs <- setNames(c(50, 400, 700), c("clinical", "miRNA", "RNA"))
 predicted <- precisionPathwaysPredict(pathways, melanomaMIA, "Outcome")
 predicted <- calcCostsAndPerformance(predicted, costs)
 ```
@@ -65,24 +65,43 @@ Now, the constructed pathways are applied to M.I.A. dataset. Finally, the costs 
 summary(predicted)
 ```
 
-Given the costs provided earlier in `calcCostsAndPerformance`, this command outputs the summary of performance and cost of each potential pathway for evaluation. There are two possible pathways proposed: using clinical then mRNA data or using clinical then miRNA data. Both pathways achieve the same balanced accuracy of 0.75 but due to the lower cost of miRNA sequencing, the second pathway attains a higher score and is the preferable option for prognostic purposes.
+Given the costs provided earlier in `calcCostsAndPerformance`, this command outputs the summary of performance and cost of each potential pathway for evaluation. Based on the score rankings clinical data alone, and clinical data followed by miRNA data are tied for the best precision pathway. Clinical data followed by miRNA has the best balanced accuracy, but it is considerably more expensive than clinical data alone. RNA data is the most expensive and tied for the worst balanced accuracy.
 
 ```{r}
 bubblePlot(predicted)
 ```
 
-This bubble plot visualises the summary created above. In a situation with more potential pathways, it would allow greater ease in selecting the best pathway to optimise cost and performance. Here, clinical-miRNA would be the preferred pathway due to its lower cost while achieving the same balanced accuracy.
-
-```{r}
-flowchart(predicted, "clinical-miRNA")
+```{r echo = FALSE, warning = FALSE}
+library(svglite)
+svglite("~/ClassifyRPlaybook/publishFigures/Figure4a.svg", height = 3, width = 3.5)
+bubblePlot(predicted) + scale_x_continuous(limits = c(0.48, 0.70))
+dev.off()
 ```
 
-Given that clinical-miRNA is the selected pathway, this function creates a flowchart to show the stepwise process for determining melanoma prognosis. Clinical data is first used to classify patients into three prognosis groups: • Good prognosis: 44% of patients (27 out of total 62). • Uncertain prognosis: 21% of patients (13 out of 62) • Poor prognosis: 35% of patients (22 out of 62). Thus, clinical data alone classifies 71% of patients (Good + Poor groups), while 21% requiring further assessment.
+This bubble plot visualises the summary created above. In a situation with more potential pathways, it would allow greater ease in selecting the best pathway to optimise cost and performance. Here, the user can decide for themselves which aspect they place their priority on.
 
-For the Uncertain prognosis group (13 patients), additional analysis using miRNA pair data refines the classification: • Good prognosis: 19% (12 patients) are identified as “Good.” • Uncertain prognosis: 0% (0 patients) remain “Uncertain.” • Poor prognosis: 2% (1 patient) is reclassified as “Poor.” This is why a potential pathway incorporating clinical, mRNA, and miRNA data was not considered, as the first two datasets alone provided a prognosis outcome for all individuals.
+```{r}
+plot(flowchart(predicted, "clinical-miRNA"))
+```
+
+```{r echo = FALSE, warning = FALSE}
+#svglite("~/ClassifyRPlaybook/publishFigures/Figure4b.svg", height = 3, width = 3.5)
+export_graph(ToDiagrammeRGraph(flowchart(predicted, "clinical-miRNA")), "~/ClassifyRPlaybook/publishFigures/Figure4b.svg", height = 100, width = 200)
+#dev.off()
+```
+
+Consider clinical-miRNA as the pathway of greatest interest. This function creates a flowchart to show the stepwise process for determining melanoma prognosis. Clinical data is first used to classify patients into three prognosis groups: • Good prognosis: 40% of patients (17 out of total 42). • Uncertain prognosis: 43% of patients (18 out of 42) • Poor prognosis: 17% of patients (7 out of 42). Thus, clinical data alone classifies 57% of patients, while 43% requiring further assessment.
+
+For the Uncertain prognosis group (18 patients), additional analysis using miRNA refines the classification: • Good prognosis: None are identified as "Good". • Poor prognosis: 43 (18 patients) are classified as "Poor". This is why a potential pathway incorporating clinical, mRNA, and miRNA data was not considered, as the first two datasets alone provided a prognosis outcome for all individuals.
 
 ```{r}
 strataPlot(predicted, "clinical-miRNA")
 ```
 
-This function creates a plot which allow us to visualise where the prognosis went wrong. A large amount of blue in the clinical row under the green, suggests that this pathway made the most errors in prognosis when first using clinical data, as it classified many "good" prognosis patients with "poor" prognosis. However, clinical data performed comparatively much better on "poor" prognosis patients due to the lesser proportion of blue. For the individuals who continued to use miRNA, there was high sensitivity in identifying individuals with a good prognosis but its specificity was limited as some individuals with a poor prognosis were misclassified as having a good prognosis.
+```{r echo = FALSE, warning = FALSE}
+svglite("~/ClassifyRPlaybook/publishFigures/Figure4c.svg", height = 3, width = 3.5)
+strataPlot(predicted, "clinical-miRNA")
+dev.off()
+```
+
+This function creates a plot which allow us to visualise where the prediction went wrong. Samples were mostly predicted correctly using clinical data. For the individuals who were assigned to use miRNA, the classifier tended to predict the "Poor" class most of the time for all samples and hence the small number of "Good" samples incorrectly had a dire prognosis, which is arguably better than giving patients with a truly poor prognosis a predicted good prognosis when they need the most intensive treatment.
