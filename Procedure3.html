@@ -65,6 +65,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./Procedure4.html" rel="next">
 <link href="./Procedure2.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -179,6 +180,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="./Procedure3.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Procedure 3: Multi-Platform Precision Pathway</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Procedure4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Procedure 4</span></span></a>
   </div>
 </li>
     </ul>
@@ -319,10 +326,6 @@ TCGA-WE-A8ZO     Good   Female        73         3</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="cell-output cell-output-stderr">
-<pre><code>Scale for x is already present.
-Adding another scale for x, which will replace the existing scale.</code></pre>
-</div>
 <div class="cell-output cell-output-stdout">
 <pre><code>png 
   2 </code></pre>
@@ -330,7 +333,7 @@ Adding another scale for x, which will replace the existing scale.</code></pre>
 </div>
 <p>This bubble plot visualises the summary created above. In a situation with more potential pathways, it would allow greater ease in selecting the best pathway to optimise cost and performance. Here, the user can decide for themselves which aspect they place their priority on.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">flowchart</span>(predicted, <span class="st">"clinical-miRNA"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">flowchart</span>(predicted, <span class="st">"clinical-miRNA"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="grViz html-widget html-fill-item" id="htmlwidget-670dc5a4c84bc77a0a1c" style="width:100%;height:464px;"></div>
 <script type="application/json" data-for="htmlwidget-670dc5a4c84bc77a0a1c">{"x":{"diagram":"digraph {\n\ngraph [rankdir = \"LR\"]\n\n\n\n  \"1\" [label = \"clinical\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"2\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#3F48CC\", fontname = \"helvetica\"] \n  \"3\" [label = \"Uncertain\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"4\" [label = \"miRNA\", style = \"filled\", shape = \"oval\", fontcolor = \"black\", fillcolor = \"#CDC9C9\", fontname = \"helvetica\"] \n  \"5\" [label = \"Good\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#3F48CC\", fontname = \"helvetica\"] \n  \"6\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#880015\", fontname = \"helvetica\"] \n  \"7\" [label = \"Poor\", style = \"filled\", shape = \"box\", fontcolor = \"black\", fillcolor = \"#880015\", fontname = \"helvetica\"] \n\"1\"->\"2\" [fontname = \"helvetica\", label = \"40% (17)\"] \n\"1\"->\"3\" [fontname = \"helvetica\", label = \"43% (18)\"] \n\"1\"->\"7\" [fontname = \"helvetica\", label = \"17% (7)\"] \n\"3\"->\"4\" [fontname = \"helvetica\", fontname = \"helvetica\"] \n\"4\"->\"5\" [fontname = \"helvetica\", label = \"0% (0)\"] \n\"4\"->\"6\" [fontname = \"helvetica\", label = \"43% (18)\"] \n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
@@ -350,7 +353,7 @@ Attaching package: 'data.tree'</code></pre>
 <p>Consider clinical-miRNA as the pathway of greatest interest. This function creates a flowchart to show the stepwise process for determining melanoma prognosis. Clinical data is first used to classify patients into three prognosis groups: • Good prognosis: 40% of patients (17 out of total 42). • Uncertain prognosis: 43% of patients (18 out of 42) • Poor prognosis: 17% of patients (7 out of 42). Thus, clinical data alone classifies 57% of patients, while 43% requiring further assessment.</p>
 <p>For the Uncertain prognosis group (18 patients), additional analysis using miRNA refines the classification: • Good prognosis: None are identified as “Good”. • Poor prognosis: 43 (18 patients) are classified as “Poor”. This is why a potential pathway incorporating clinical, mRNA, and miRNA data was not considered, as the first two datasets alone provided a prognosis outcome for all individuals.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">strataPlot</span>(predicted, <span class="st">"clinical-miRNA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">strataPlot</span>(predicted, <span class="st">"clinical-miRNA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -777,6 +780,9 @@ Attaching package: 'data.tree'</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="./Procedure4.html" class="pagination-link" aria-label="Procedure 4">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Procedure 4</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->

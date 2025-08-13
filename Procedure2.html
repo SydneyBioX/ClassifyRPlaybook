@@ -177,6 +177,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Procedure 3: Multi-Platform Precision Pathway</span></span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./Procedure4.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Procedure 4</span></span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -300,12 +306,6 @@ results. Calculating it now.</code></pre>
 </figure>
 </div>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>TableGrob (2 x 1) "arrange": 2 grobs
-  z     cells    name                grob
-1 1 (2-2,1-1) arrange      gtable[layout]
-2 2 (1-1,1-1) arrange text[GRID.text.354]</code></pre>
-</div>
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
@@ -323,12 +323,12 @@ results. Calculating it now.</code></pre>
 <p><span style="color: grey;">Timing ~ 29mins</span></p>
 <p>Note: <code>Type Protein Mean</code> and <code>Type Proportions</code> have been removed for the following analysis to save run time.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>xOrder <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>merge <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"clinical"</span>, <span class="st">"Domain Proportions"</span>, <span class="st">"Proportions of Parent"</span>, <span class="st">"Colocalisation"</span>, <span class="st">"RNA Microarray"</span>)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>coxMergeCV <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC[merge], <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>), <span class="at">multiViewMethod =</span> <span class="st">"merge"</span>, <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))), <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">8</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxMergeCV, <span class="at">orderingList =</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>xOrder <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>merge <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"clinical"</span>, <span class="st">"Domain Proportions"</span>, <span class="st">"Proportions of Parent"</span>, <span class="st">"Colocalisation"</span>, <span class="st">"RNA Microarray"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>coxMergeCV <span class="ot">&lt;-</span> <span class="fu">crossValidate</span>(METABRIC[merge], <span class="fu">c</span>(<span class="st">"timeRFS"</span>, <span class="st">"eventRFS"</span>), <span class="at">multiViewMethod =</span> <span class="st">"merge"</span>, <span class="at">extraParams =</span> <span class="fu">list</span>(<span class="at">prepare =</span> <span class="fu">list</span>(<span class="at">useFeatures =</span> <span class="fu">list</span>(<span class="at">clinical =</span> usefulFeatures))), <span class="at">selectionMethod =</span> <span class="st">"CoxPH"</span>, <span class="at">classifier =</span> <span class="st">"CoxNet"</span>, <span class="at">nCores =</span> <span class="dv">8</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">performancePlot</span>(coxMergeCV, <span class="at">orderingList =</span> <span class="fu">list</span>(<span class="st">"Assay Name"</span> <span class="ot">=</span> <span class="st">"performanceDescending"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -346,7 +346,7 @@ results. Calculating it now.</code></pre>
 <p>The 3 commands used here are the same as for <code>individual assays</code> in step 3, with the only difference being the <code>merge</code> combination method used for the <code>multiViewMethod</code> argument in the second command to concatenate the independently selected features in each view. Other multiVewMethods include <code>prevalidation</code> and <code>PCA</code>. The produced plot suggests that combining clinical data with imaging mass cytometry views can improve performance. Specifically, the best performing combination used <code>clinical</code>, <code>Colocated in Regions</code> and <code>Type Pairs Colocated</code> to achieve a C-index which surpasses <code>Proportion of Parent</code>, the best performing individual assay. Hence, integrating multiple views have successfully improved prediction accuracy.</p>
 <p><span style="color: grey;">Timing ~ 95s</span></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(coxMergeCV, <span class="at">showXtickLabels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">samplesMetricMap</span>(coxMergeCV, <span class="at">showXtickLabels =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in .local(results, ...): Sample C-index not found in all elements of
 results. Calculating it now.</code></pre>
@@ -357,12 +357,6 @@ results. Calculating it now.</code></pre>
 <p><img src="Procedure2_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>TableGrob (2 x 1) "arrange": 2 grobs
-  z     cells    name                 grob
-1 1 (2-2,1-1) arrange       gtable[layout]
-2 2 (1-1,1-1) arrange text[GRID.text.1354]</code></pre>
 </div>
 </div>
 
