@@ -80,7 +80,7 @@ This command generates a side-by-side boxplot of C-index for each individual ass
 
 [Timing \~ 22s]{style="color: grey;"}
 
-```{r}
+```{r, results = "hide"}
 samplesMetricMap(coxCV, showXtickLabels = FALSE)
 ```
 
@@ -100,7 +100,7 @@ Note: `Type Protein Mean` and `Type Proportions` have been removed for the follo
 set.seed(1)
 xOrder <- list("Assay Name" = "performanceDescending")
 merge <- c("clinical", "Domain Proportions", "Proportions of Parent", "Colocalisation", "RNA Microarray")
-coxMergeCV <- crossValidate(METABRIC[merge], c("timeRFS", "eventRFS"), multiViewMethod = "merge", extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))), selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 20)
+coxMergeCV <- crossValidate(METABRIC[merge], c("timeRFS", "eventRFS"), multiViewMethod = "merge", extraParams = list(prepare = list(useFeatures = list(clinical = usefulFeatures))), selectionMethod = "CoxPH", classifier = "CoxNet", nCores = 8)
 
 performancePlot(coxMergeCV, orderingList = list("Assay Name" = "performanceDescending"))
 ```
@@ -115,6 +115,6 @@ The 3 commands used here are the same as for `individual assays` in step 3, with
 
 [Timing \~ 95s]{style="color: grey;"}
 
-```{r}
+```{r, results = "hide"}
 samplesMetricMap(coxMergeCV, showXtickLabels = FALSE)
 ```

@@ -27,7 +27,7 @@ Criss-cross validation is an approach where each dataset is used to train a mode
 
 ```{r, message=FALSE, warning=FALSE, echo=TRUE}
 set.seed(51773)
-CCV <- crissCrossValidate(measurements = promad$measurements, outcome = promad$outcome,
+CCV <- crissCrossValidate(measurements = promad$measurements, outcomes = promad$outcome,
                           classifier = "LASSOGLM", performanceType = "AUC", runTOP = TRUE, 
                           nFeatures = 100, nFolds = 5, nRepeats = 10,
                           nCores = 8)
@@ -35,10 +35,12 @@ CCV <- crissCrossValidate(measurements = promad$measurements, outcome = promad$o
 crissCrossPlot(CCV, includeValues = TRUE, showResubMetric = FALSE)
 ```
 
-```{r echo = FALSE, warning = FALSE}
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+library(ggplot2)
+library(svglite)
 svglite("~/ClassifyRPlaybook/publishFigures/Figure5.svg", height = 3, width = 3.5)
 crissCrossPlot(CCV, includeValues = TRUE, showResubMetric = FALSE) + theme(axis.title = element_text(size = 7), axis.text.x = element_text(size = 6), axis.text.y = element_text(size = 6), legend.title = element_text(size = 7), legend.text = element_text(size = 7)) + scale_x_discrete(labels = function(x) {
-    gsub(" GSE", "\nGSE", x) # Replace "old_label_" with "New "
+    gsub(" GSE", "\nGSE", x)
   })
 dev.off()
 ```

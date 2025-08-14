@@ -64,7 +64,7 @@ dev.off()
 
 Both methods perform comparably in terms of median balanced accuracy and also demonstrate similar distributions of performance as seen from the comparable interquartile range and range. There does not appear to be much difference in the classification performance of both assays.
 
-```{r warning = FALSE}
+```{r warning = FALSE, results = "hide"}
 samplesMetricMap(classifyResult, showXtickLabels = FALSE)
 ```
 

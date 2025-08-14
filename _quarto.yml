@@ -13,6 +13,7 @@ book:
     - Procedure1.qmd
     - Procedure2.qmd
     - Procedure3.qmd
+    - Procedure4.qmd
   navbar:
     logo: images/USydLogo.svg
   sidebar:

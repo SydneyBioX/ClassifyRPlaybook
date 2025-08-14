@@ -71,8 +71,9 @@ Given the costs provided earlier in `calcCostsAndPerformance`, this command outp
 bubblePlot(predicted)
 ```
 
-```{r echo = FALSE, warning = FALSE}
+```{r echo = FALSE, warning = FALSE, message = FALSE}
 library(svglite)
+library(ggplot2)
 svglite("~/ClassifyRPlaybook/publishFigures/Figure4a.svg", height = 3, width = 3.5)
 bubblePlot(predicted) + scale_x_continuous(limits = c(0.48, 0.70))
 dev.off()
@@ -85,6 +86,8 @@ plot(flowchart(predicted, "clinical-miRNA"))
 ```
 
 ```{r echo = FALSE, warning = FALSE}
+library(DiagrammeR)
+library(data.tree)
 #svglite("~/ClassifyRPlaybook/publishFigures/Figure4b.svg", height = 3, width = 3.5)
 export_graph(ToDiagrammeRGraph(flowchart(predicted, "clinical-miRNA")), "~/ClassifyRPlaybook/publishFigures/Figure4b.svg", height = 100, width = 200)
 #dev.off()
