@@ -19,9 +19,10 @@ The prognosis outcome is classified as "Good" if survival is greater than 4 year
 
 ```{r message = FALSE}
 library(ClassifyR)
+library(MultiAssayExperiment)
 ```
 
-`ClassifyR` is used to perform all the demonstrated analyses below.
+`ClassifyR` is used to perform all the demonstrated analyses below. `MultiAssayExperiment` provides `colData`, which shows the clinical data stored with the assays.
 
 **2. Import preprocessed datasets for analysis**
 
